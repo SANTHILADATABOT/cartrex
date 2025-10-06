@@ -1,0 +1,26 @@
+const mongoose = require('mongoose');
+
+const reviewSchema = new mongoose.Schema({
+  bookingId: { type: mongoose.Schema.Types.ObjectId, ref: 'Booking', required: true },
+  carrierId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  shipperId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+
+  overallRating: { type: Number, required: true, min: 1, max: 5 }, // Rating out of 5
+  comment: { type: String, trim: true },
+
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
+   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    deletedAt: { type: Date },
+    ipAddress: { type: String },
+    userAgent: { type: String }
+});
+
+// Optional indexes for faster queries
+reviewSchema.index({ bookingId: 1 });
+reviewSchema.index({ carrierId: 1 });
+reviewSchema.index({ shipperId: 1 });
+
+module.exports = mongoose.model('Reviews', reviewSchema);
