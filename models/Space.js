@@ -28,6 +28,7 @@ const spaceSchema = new mongoose.Schema({
     }
   },
   availableSpaces: { type: Number, required: true, min: 1, max: 9 },
+  message: { type: String, required: false },
   bookedSpaces: { type: Number, default: 0 },
   rateCard: [{
     vehicleType: { type: String, required: true },

@@ -77,23 +77,23 @@ exports.login = async (req, res) => {
 
     if (!user.isActive)
       return res.status(403).json({ success: false, message: 'Account is deactivated' });
+    // this mfa enable functionality no need now so we cmd this 
+    /*if (user.mfaEnabled) {
+        const otp = generateOTP();
 
-    if (user.mfaEnabled) {
-      const otp = generateOTP();
+        // Decrypt phone number if stored encrypted
+        const phone = decrypt(user.phone);  
 
-      // Decrypt phone number if stored encrypted
-      const phone = decrypt(user.phone);  
+        await sendEmail(user.email, 'Your OTP Code', `Your OTP is: ${otp}. Valid for 10 minutes.`);
+        await SMSService.sendSMS(phone, `Your OTP is: ${otp}`);
 
-      await sendEmail(user.email, 'Your OTP Code', `Your OTP is: ${otp}. Valid for 10 minutes.`);
-      await SMSService.sendSMS(phone, `Your OTP is: ${otp}`);
-
-      return res.status(200).json({
-        success: true,
-        requiresMFA: true,
-        userId: user._id,
-        message: 'OTP sent to your email and phone'
-      });
-    }
+        return res.status(200).json({
+          success: true,
+          requiresMFA: true,
+          userId: user._id,
+          message: 'OTP sent to your email and phone'
+        });
+      } */
 
     user.lastLogin = new Date();
     await user.save();

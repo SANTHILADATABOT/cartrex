@@ -23,11 +23,29 @@ const space=require('./models/Space');
 const truck=require('./models/Truck');
 const user=require('./models/User');
 const usernotifications=require('./models/UsernotificationSettings');
+
+//newly added start
+const authRoutes = require('./routes/authRoutes');
+const http = require('http'); // Import http module
+const { Server } = require('socket.io'); // Import socket.io
+//end 
+
 dotenv.config();
 const MONGO_URI=process.env.MONGODB_URI
 
 const app = express();
-
+//newly added start
+// Create HTTP server from express app
+const server = http.createServer(app);
+// Initialize socket.io server
+const io = new Server(server, {
+  cors: {
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    methods: ['GET', 'POST'],
+    credentials: true
+  }
+});
+//End
 // Middleware
 app.use(helmet());
 app.use(cors({
@@ -39,7 +57,9 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(morgan('dev'));
-
+//newly added start
+app.use('/auth', authRoutes);
+//end
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -56,6 +76,28 @@ const client = new MongoClient(MONGO_URI);
 client.connect()
   .then(() => console.log("Connected to MongoDB Atlas"))
   .catch(err => console.error(err));
+// Also connect mongoose separately
+mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log("Connected to MongoDB Atlas via Mongoose"))
+  .catch(err => console.error("MongoDB connection error:", err));
+
+// Socket.io connection handling
+io.on('connection', (socket) => {
+  console.log('User connected:', socket.id);
+
+  // Example: Listen for a custom event from client
+  socket.on('example_event', (data) => {
+    console.log('Received example_event from client:', data);
+
+    // Example: Emit a response event back to client
+    socket.emit('example_response', { message: 'Hello from server!' });
+  });
+
+  // Handle client disconnect
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id);
+  });
+});
 
 // mongoose.connect(MONGO_URI)
 //   .then(async () => {
