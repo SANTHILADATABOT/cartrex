@@ -1,74 +1,121 @@
 const MasterData = require('../models/Master');
 
-// Create new master data document
-exports.createMaster = async (req, res) => {
+// Create or update vehicles
+exports.createOrUpdateVehicles = async (req, res) => {
   try {
-    const master = new MasterData({
-      vehicles: req.body.vehicles,
-      locations: req.body.locations,
-      createdBy: req.user._id, // assuming user id comes from authenticated req.user
-      ipAddress: req.ip,
-      userAgent: req.get('User-Agent')
+    const { vehicles, createdBy, ipAddress, userAgent } = req.body;
+    if (!vehicles || !Array.isArray(vehicles)) {
+      return res.status(400).json({ message: 'vehicles array is required' });
+    }
+// {
+//   "vehicles": [],         // an array for vehicles
+//   "truck": {},            // an object for truck details
+//   "locations": [],        // an array for location information
+//   "createdBy": "string",  // typically a user ID or name
+//   "ipAddress": "string",  // optional, client's IP address
+//   "userAgent": "string"   // optional, browser or client information
+// }
+
+    let master = await MasterData.findOne();
+    if (!master) {
+      master = new MasterData({ createdBy });
+    }
+
+    vehicles.forEach(vehicle => {
+      const index = master.vehicles.findIndex(v => v.typeName === vehicle.typeName);
+      if (index !== -1) {
+        master.vehicles[index].variants = vehicle.variants || master.vehicles[index].variants;
+      } else {
+        master.vehicles.push(vehicle);
+      }
     });
+
+    master.updatedAt = new Date();
+    master.updatedBy = createdBy;
+    master.ipAddress = ipAddress;
+    master.userAgent = userAgent;
+
     await master.save();
-    res.status(201).json({ message: 'Master data created', master });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
+
+    res.status(200).json(master.vehicles);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-// Get all master data documents
-exports.getAllMasters = async (req, res) => {
+// Create or update trucks
+exports.createOrUpdateTruck = async (req, res) => {
   try {
-    const masters = await MasterData.find({});
-    res.status(200).json(masters);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    const { truck, createdBy, ipAddress, userAgent } = req.body;
+    if (!truck || !Array.isArray(truck)) {
+      return res.status(400).json({ message: 'truck array is required' });
+    }
+
+    let master = await MasterData.findOne();
+    if (!master) {
+      master = new MasterData({ createdBy });
+    }
+
+    truck.forEach(t => {
+      const index = master.truck.findIndex(trk => trk.typeName === t.typeName);
+      if (index !== -1) {
+        master.truck[index].variants = t.variants || master.truck[index].variants;
+      } else {
+        master.truck.push(t);
+      }
+    });
+
+    master.updatedAt = new Date();
+    master.updatedBy = createdBy;
+    master.ipAddress = ipAddress;
+    master.userAgent = userAgent;
+
+    await master.save();
+
+    res.status(200).json(master.truck);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-// Get single master by ID
-exports.getMasterById = async (req, res) => {
+// Create or update locations
+exports.createOrUpdateLocations = async (req, res) => {
   try {
-    const master = await MasterData.findById(req.params.id);
-    if (!master) return res.status(404).json({ message: 'Master data not found' });
-    res.status(200).json(master);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+    const { locations, createdBy, ipAddress, userAgent } = req.body;
+    if (!locations || !Array.isArray(locations)) {
+      return res.status(400).json({ message: 'locations array is required' });
+    }
 
-// Update master data by ID
-exports.updateMaster = async (req, res) => {
-  try {
-    const updateData = {
-      vehicles: req.body.vehicles,
-      locations: req.body.locations,
-      updatedBy: req.user._id,
-      updatedAt: Date.now(),
-      ipAddress: req.ip,
-      userAgent: req.get('User-Agent')
-    };
-    const master = await MasterData.findByIdAndUpdate(req.params.id, updateData, { new: true });
-    if (!master) return res.status(404).json({ message: 'Master data not found' });
-    res.status(200).json({ message: 'Master data updated', master });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
+    let master = await MasterData.findOne();
+    if (!master) {
+      master = new MasterData({ createdBy });
+    }
 
-// Soft delete master data by ID
-exports.deleteMaster = async (req, res) => {
-  try {
-    const updateData = {
-      deletedBy: req.user._id,
-      deletedAt: Date.now(),
-      updatedAt: Date.now()
-    };
-    const master = await MasterData.findByIdAndUpdate(req.params.id, updateData, { new: true });
-    if (!master) return res.status(404).json({ message: 'Master data not found' });
-    res.status(200).json({ message: 'Master data soft deleted', master });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    locations.forEach(loc => {
+      if (!loc.city || !loc.state) return; // skip invalid location
+
+      const index = master.locations.findIndex(
+        l => l.city === loc.city && l.state === loc.state && (loc.country ? l.country === loc.country : true)
+      );
+
+      if (index === -1) {
+        master.locations.push({
+          city: loc.city,
+          state: loc.state,
+          country: loc.country || 'India'
+        });
+      }
+    });
+
+    master.updatedAt = new Date();
+    master.updatedBy = createdBy;
+    master.ipAddress = ipAddress;
+    master.userAgent = userAgent;
+
+    await master.save();
+
+    res.status(200).json(master.locations);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };

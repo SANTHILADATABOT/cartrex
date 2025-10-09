@@ -26,6 +26,8 @@ const usernotifications=require('./models/UsernotificationSettings');
 
 //newly added start
 const authRoutes = require('./routes/authRoutes');
+const masterRoutes = require('./routes/master');
+
 const http = require('http'); // Import http module
 const { Server } = require('socket.io'); // Import socket.io
 //end 
@@ -59,6 +61,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(morgan('dev'));
 //newly added start
 app.use('/auth', authRoutes);
+app.use('/master', masterRoutes);
 //end
 // Rate limiting
 const limiter = rateLimit({
