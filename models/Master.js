@@ -4,10 +4,11 @@ const masterSchema = new mongoose.Schema({
   // Vehicle master
   vehicles: [
     {
-      typeName: { type: String, required: true }, // Sedan, SUV, Truck, etc.
-      capacity: { type: Number, required: true }, // number of spaces or passengers
-      variants: [{ type: String }], // small, mid, high
-      conditions: [{ type: String }] // New, Used, Refurbished, etc.
+      category: { type: String, required: true }, // Sedan, SUV, Truck, etc.
+      // capacity: { type: Number, required: true }, // number of spaces or passengers
+      sub_category: [{ type: String }], // small, mid, high
+      icon_url: [{ type: String }], // small, mid, high
+      // conditions: [{ type: String }] // New, Used, Refurbished, etc.
     }
   ],
 
