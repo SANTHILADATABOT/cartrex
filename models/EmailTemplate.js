@@ -12,7 +12,12 @@ const emailTemplateSchema = new mongoose.Schema({
   variables: [String], // e.g., ['{{userName}}', '{{bookingId}}']
   isActive: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
+  updatedAt: { type: Date, default: Date.now },
+  deletstatus: {
+    type: Number,
+    enum: [0, 1],   // Only allow 0 or 1
+    default: 0      // Default value is 0
+  }
 });
 
 module.exports = mongoose.model('EmailTemplate', emailTemplateSchema);

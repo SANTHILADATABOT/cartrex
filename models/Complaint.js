@@ -28,6 +28,11 @@ const complaintSchema = new mongoose.Schema({
   resolvedAt: Date,
   
   createdAt: { type: Date, default: Date.now },
+  deletstatus: {
+    type: Number,
+    enum: [0, 1],   // Only allow 0 or 1
+    default: 0      // Default value is 0
+  },
   updatedAt: { type: Date, default: Date.now }
 });
 

@@ -21,6 +21,11 @@ const userSchema = new mongoose.Schema({
    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
   updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  deletstatus: {
+    type: Number,
+    enum: [0, 1],   // Only allow 0 or 1
+    default: 0      // Default value is 0
+  },
   deletedAt: { type: Date },
   ipAddress: { type: String },
   userAgent: { type: String }
