@@ -1,4 +1,4 @@
-const MasterData = require('../models/Master');
+const MasterData = require('../../models/MasterVehicleType');
 
 // Create new master data document
 exports.createMaster = async (req, res) => {

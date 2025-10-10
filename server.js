@@ -11,7 +11,7 @@ const bid=require('./models/Bid');
 const booking=require('./models/Booking');
 const carrier=require('./models/Carrier');
 const complaints=require('./models/Complaint');
-const master=require('./models/Master');
+const master=require('./models/MasterVehicleType');
 const messages=require('./models/Messages');
 const notifications=require('./models/NotificationTemplate');
 const paymentMethod=require('./models/PaymentMethod');
@@ -26,7 +26,7 @@ const usernotifications=require('./models/UsernotificationSettings');
 
 //newly added start
 const authRoutes = require('./routes/authRoutes');
-const masterRoutes = require('./routes/master');
+const masterRoutes = require('./admin/adminRoutes/masterRoutes');
 const http = require('http'); // Import http module
 const { Server } = require('socket.io'); // Import socket.io
 //end 
@@ -76,8 +76,8 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(morgan('dev'));
 //newly added start
-app.use('/auth', authRoutes);
-app.use('/masters', masterRoutes);
+app.use('/admin', authRoutes);
+app.use('/admin', masterRoutes);
 //end
 // Rate limiting
 const limiter = rateLimit({
