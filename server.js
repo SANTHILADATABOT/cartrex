@@ -76,8 +76,8 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(morgan('dev'));
 //newly added start
-app.use('/admin', authRoutes);
-app.use('/admin', masterRoutes);
+app.use('/auth', authRoutes);
+app.use('/master', masterRoutes);
 //end
 // Rate limiting
 const limiter = rateLimit({

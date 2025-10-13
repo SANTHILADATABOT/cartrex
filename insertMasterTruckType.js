@@ -102,14 +102,14 @@ async function insertTruckTypes() {
     // console.log('🗑️  Cleared existing truck types');
 
     // // Insert all truck types
-    // const savedTruckTypes = await TruckType.insertMany(truckTypeSample);
+    const savedTruckTypes = await TruckType.insertMany(truckTypeSample);
 
-    // console.log(`✅ ${savedTruckTypes.length} truck types inserted successfully:`);
+    console.log(`✅ ${savedTruckTypes.length} truck types inserted successfully:`);
     
     // // Log inserted categories
-    // savedTruckTypes.forEach(truckType => {
-    //   console.log(`   - ${truckType.category} with ${truckType.sub_categories.length} sub-categories`);
-    // });
+    savedTruckTypes.forEach(truckType => {
+      console.log(`   - ${truckType.category} with ${truckType.sub_categories.length} sub-categories`);
+    });
 
     await mongoose.connection.close();
     console.log('📊 Database connection closed');
