@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const truckController = require('../controller/truckController');
-const { protect, authorize, requireProfileComplete } = require('../middleware/auth');
+const truckController = require('../../controllers/truckController');
+const { protect, authorize, requireProfileComplete } = require('../../middleware/auth');
 const multer = require('multer');
 
 const upload = multer({ storage: multer.memoryStorage() });

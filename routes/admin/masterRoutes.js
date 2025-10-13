@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const masterController = require('../adminController/masterController');
+const masterController = require('../../controllers/admin/masterController');
 // const { verifyToken } = require('../middlewares/authMiddleware'); // optional if auth required
 
 // 🧩 Routes

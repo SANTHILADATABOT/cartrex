@@ -1,10 +1,10 @@
-const User = require('../models/User');
-const Shipper = require('../models/Shipper');
-const Carrier = require('../models/Carrier');
-const Truck = require('../models/Truck');
-const Booking = require('../models/Booking');
-const Payment = require('../models/Payment');
-const Complaint = require('../models/Complaint');
+const User = require('../../models/User');
+const Shipper = require('../../models/Shipper');
+const Carrier = require('../../models/Carrier');
+const Truck = require('../../models/Truck');
+const Booking = require('../../models/Booking');
+const Payment = require('../../models/Payment');
+const Complaint = require('../../models/Complaint');
 
 exports.getDashboard = async (req, res) => {
   try {

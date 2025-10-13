@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const spaceController = require('../controller/spaceController');
-const { protect, authorize, requireProfileComplete } = require('../middleware/auth');
+const spaceController = require('../../controllers/spaceController');
+const { protect, authorize, requireProfileComplete } = require('../../middleware/auth');
 
 router.post('/', protect, authorize('carrier'), requireProfileComplete, spaceController.createSpace);
 

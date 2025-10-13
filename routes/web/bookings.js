@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const bookingController = require('../controller/bookingController');
-const { protect, authorize, requireProfileComplete } = require('../middleware/auth');
+const bookingController = require('../../controllers/bookingController');
+const { protect, authorize, requireProfileComplete } = require('../../middleware/auth');
 
 // Create new booking - Shipper only
 router.post('/', protect, authorize('shipper'), requireProfileComplete, bookingController.createBooking);

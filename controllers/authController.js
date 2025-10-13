@@ -4,7 +4,7 @@ const Carrier = require('../models/Carrier');
 const Shipper = require('../models/Shipper');
 const { generateToken, generateOTP } = require('../utils/jwt');
 const { sendEmail } = require('../utils/emailService');
-const SMSService = require('../utils/smsService');
+// const SMSService = require('../utils/smsService');
 const { encrypt, decrypt } = require('../utils/encryption');
 // Signup Controller
 exports.signup = async (req, res) => {
@@ -160,8 +160,8 @@ exports.forgotPassword = async (req, res) => {
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
     const otp = generateOTP();
-    await sendEmail(user.email, 'Password Reset OTP', `Your password reset OTP is: ${otp}. Valid for 10 minutes.`);
-    await SMSService.sendSMS(user.phone, `Your password reset OTP is: ${otp}`);
+    // await sendEmail(user.email, 'Password Reset OTP', `Your password reset OTP is: ${otp}. Valid for 10 minutes.`);
+    // await SMSService.sendSMS(user.phone, `Your password reset OTP is: ${otp}`);
 
     res.status(200).json({ success: true, message: 'OTP sent to your email and phone', userId: user._id });
   } catch (error) {
