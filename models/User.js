@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
   password: { type: String, required: true ,select: false},
   firstName: { type: String, required: true, trim: true },
-  lastName: { type: String, required: true, trim: true },
+  lastName: { type: String, trim: true },
   phone: { type: String, required: true },
   role: { type: String, enum: ['admin', 'carrier', 'shipper'], required: true },
   isApproved: { type: Boolean, default: false },
@@ -21,7 +21,13 @@ const userSchema = new mongoose.Schema({
    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
   updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  deletstatus: {
+    type: Number,
+    enum: [0, 1],   // Only allow 0 or 1
+    default: 0      // Default value is 0
+  },
   deletedAt: { type: Date },
+  deletedipAddress: { type: String },
   ipAddress: { type: String },
   userAgent: { type: String }
 });

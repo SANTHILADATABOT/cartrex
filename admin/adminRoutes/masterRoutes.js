@@ -7,6 +7,7 @@ const masterController = require('../adminController/masterController');
 
 // Create new Master Data
 router.post('/createmaster', masterController.createMaster);
+router.post('/createMasterVehicle', masterController.createMasterVehicle);
 
 // Get all Master Data
 router.get('/getallmasters', masterController.getAllMasters);

@@ -42,7 +42,6 @@ async function insertTruckTypes() {
         sub_categories: [
           {
             name: "Open Car Hauler",
-            price: 15000,
             description: "Open car hauler for vehicle transportation",
             is_active: true,
             display_order: 1,
@@ -50,7 +49,6 @@ async function insertTruckTypes() {
           },
           {
             name: "Wedge",
-            price: 18000,
             description: "More powerful light truck",
             is_active: true,
             display_order: 2,
@@ -58,7 +56,6 @@ async function insertTruckTypes() {
           },
           {
             name: "Hotshot",
-            price: 18000,
             description: "More powerful light truck",
             is_active: true,
             display_order: 2,
@@ -66,7 +63,6 @@ async function insertTruckTypes() {
           },
            {
             name: "Enclosed Car Hauler",
-            price: 60000,
             description: "Enclosed trailer for vehicle transport",
             is_active: true,
             display_order: 2,
@@ -74,7 +70,6 @@ async function insertTruckTypes() {
           },
           {
             name: "Pickup Truck w/Trailer",
-            price: 25000,
             description: "Pickup truck with trailer attachment",
             is_active: true,
             display_order: 3,
@@ -82,7 +77,6 @@ async function insertTruckTypes() {
           },
           {
             name: "Semi Truck w/Trailer",
-            price: 75000,
             description: "Semi truck with large trailer capacity",
             is_active: true,
             display_order: 4,
@@ -93,24 +87,16 @@ async function insertTruckTypes() {
         display_order: 1,
         audit: createAudit()
       },
-    
-     
     ];
 
-    // // Clear existing data first
-    // // await TruckType.deleteMany({});
-    // console.log('🗑️  Cleared existing truck types');
-
-    // // Insert all truck types
+    // ✅ Option 1: insertMany (for arrays)
     const savedTruckTypes = await TruckType.insertMany(truckTypeSample);
 
     console.log(`✅ ${savedTruckTypes.length} truck types inserted successfully:`);
-    
-    // // Log inserted categories
-    savedTruckTypes.forEach(truckType => {
-      console.log(`   - ${truckType.category} with ${truckType.sub_categories.length} sub-categories`);
-    });
 
+    savedTruckTypes.forEach(truckType => {
+      console.log(`   - ${truckType.category} (${truckType.sub_categories.length} sub-categories)`);
+    });
     await mongoose.connection.close();
     console.log('📊 Database connection closed');
   } catch (err) {
