@@ -12,7 +12,7 @@ const shipperSchema = new mongoose.Schema({
   country: { type: String, required: true },
   totalBookings: { type: Number, default: 0 },
   outstandingPayouts: { type: Number, default: 0 },
-  status: { type: String, enum: ['active', 'suspended'], default: 'active' },
+  status: { type: String, enum: ['active', 'inactive'], default: 'active' },
   recentActivity: { type: Date },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
@@ -25,6 +25,7 @@ const shipperSchema = new mongoose.Schema({
   },
     deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     deletedAt: { type: Date },
+    deletedipAddress: { type: String },
     ipAddress: { type: String },
     userAgent: { type: String }
 });

@@ -63,6 +63,7 @@ const bidSchema = new mongoose.Schema({
   },
     deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     deletedAt: { type: Date },
+    deletedipAddress: { type: String },
     ipAddress: { type: String },
     userAgent: { type: String }
 });

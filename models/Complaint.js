@@ -33,6 +33,7 @@ const complaintSchema = new mongoose.Schema({
     enum: [0, 1],   // Only allow 0 or 1
     default: 0      // Default value is 0
   },
+  deletedipAddress: { type: String },
   updatedAt: { type: Date, default: Date.now }
 });
 

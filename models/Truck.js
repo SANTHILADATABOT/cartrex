@@ -42,6 +42,7 @@ const truckSchema = new mongoose.Schema({
     default: 0      // Default value is 0
   },
     deletedAt: { type: Date },
+    deletedipAddress: { type: String },
     ipAddress: { type: String },
     userAgent: { type: String }
 });

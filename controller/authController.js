@@ -65,11 +65,12 @@ const encryptedpassword = encrypt(password);
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
+       console.log("req.body",req.body)
     if (!email || !password)
       return res.status(400).json({ success: false, message: 'Please provide email and password' });
 
     const user = await User.findOne({ email }).select('+password');
-    if (!user) return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    if (!user) return res.status(401).json({ success: false, message: 'Invalid credentialsssss' });
 
     // Compare password with hashed password stored in DB
     const isMatch = await user.comparePassword(password);
@@ -102,7 +103,7 @@ exports.login = async (req, res) => {
     res.status(200).json({
       success: true,
       token,
-      user: {
+      data: {
         id: user._id,
         email: user.email,
         firstName: user.firstName,

@@ -11,7 +11,7 @@ const bid=require('./models/Bid');
 const booking=require('./models/Booking');
 const carrier=require('./models/Carrier');
 const complaints=require('./models/Complaint');
-const master=require('./models/Master');
+const master=require('./models/MasterVehicleType');
 const messages=require('./models/Messages');
 const notifications=require('./models/NotificationTemplate');
 const paymentMethod=require('./models/PaymentMethod');
@@ -26,8 +26,7 @@ const usernotifications=require('./models/UsernotificationSettings');
 
 //newly added start
 const authRoutes = require('./routes/authRoutes');
-const masterRoutes = require('./routes/master');
-
+const masterRoutes = require('./admin/adminRoutes/masterRoutes');
 const http = require('http'); // Import http module
 const { Server } = require('socket.io'); // Import socket.io
 //end 
@@ -42,7 +41,7 @@ const server = http.createServer(app);
 // Initialize socket.io server
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173/',
     methods: ['GET', 'POST'],
     credentials: true
   }
@@ -50,18 +49,35 @@ const io = new Server(server, {
 //End
 // Middleware
 app.use(helmet());
+// app.use(cors({
+//   origin: process.env.FRONTEND_URL || 'http://localhost:5173/',
+//   credentials: true
+// }));
+
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'http://localhost:5173',
+  'http://127.0.0.1:5173'
+];
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: function(origin, callback) {
+    // allow requests with no origin (like Postman)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('CORS not allowed from this origin'));
+    }
+  },
   credentials: true
 }));
-
-
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(morgan('dev'));
 //newly added start
-app.use('/auth', authRoutes);
-app.use('/master', masterRoutes);
+app.use('/admin', authRoutes);
+app.use('/admin', masterRoutes);
 //end
 // Rate limiting
 const limiter = rateLimit({

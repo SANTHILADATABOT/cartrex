@@ -17,7 +17,8 @@ const emailTemplateSchema = new mongoose.Schema({
     type: Number,
     enum: [0, 1],   // Only allow 0 or 1
     default: 0      // Default value is 0
-  }
+  },
+  deletedipAddress: { type: String },
 });
 
 module.exports = mongoose.model('EmailTemplate', emailTemplateSchema);

@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-  password: { type: String, required: true },
+  password: { type: String, required: true ,select: false},
   firstName: { type: String, required: true, trim: true },
   lastName: { type: String, trim: true },
   phone: { type: String, required: true },
@@ -27,6 +27,7 @@ const userSchema = new mongoose.Schema({
     default: 0      // Default value is 0
   },
   deletedAt: { type: Date },
+  deletedipAddress: { type: String },
   ipAddress: { type: String },
   userAgent: { type: String }
 });
