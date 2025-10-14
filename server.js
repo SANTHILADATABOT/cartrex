@@ -185,6 +185,8 @@ const masterRoutes = require('./routes/admin/masterRoutes');
 const spaceListRoutes = require('./routes/admin/spaceListingRoutes');
 const carrierListRoutes = require('./routes/admin/carrierListingRoutes');
 const shipperListRoutes = require('./routes/admin/shipperListingRoutes');
+const truckListRoutes = require("./routes/admin/truckListingRoutes");
+
 const webRoutes = require('./routes/web');
 // const mobileRoutes = require('./routes/mobile');
 // const sharedRoutes = require('./routes/shared');
@@ -199,6 +201,7 @@ app.use('/masters', masterRoutes);
 app.use('/spacelisting', spaceListRoutes);
 app.use('/carrierlisting', carrierListRoutes); 
 app.use('/shipperlisting', shipperListRoutes);
+app.use('/trucklisting', truckListRoutes);
 // Web application routes
 app.use('/api/web', webRoutes);
 
