@@ -12,6 +12,8 @@ const rateLimit = require('express-rate-limit');
 const http = require('http');
 const { Server } = require('socket.io');
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const AdminRole=require('./models/AdminRoles')
+const AdminUsers=require('./models/AdminUsers')
 const bid=require('./models/Bid');
 const booking=require('./models/Booking');
 const carrier=require('./models/Carrier');
@@ -186,6 +188,9 @@ const spaceListRoutes = require('./routes/admin/spaceListingRoutes');
 const carrierListRoutes = require('./routes/admin/carrierListingRoutes');
 const shipperListRoutes = require('./routes/admin/shipperListingRoutes');
 const truckListRoutes = require("./routes/admin/truckListingRoutes");
+const bookingListRoutes = require("./routes/admin/bookingListRoutes");
+const routeListRoutes = require('./routes/admin/routeListingRoutes')
+const bidListRoutes = require('./routes/admin/bidListingRoutes');
 
 const webRoutes = require('./routes/web');
 // const mobileRoutes = require('./routes/mobile');
@@ -202,6 +207,9 @@ app.use('/spacelisting', spaceListRoutes);
 app.use('/carrierlisting', carrierListRoutes); 
 app.use('/shipperlisting', shipperListRoutes);
 app.use('/trucklisting', truckListRoutes);
+app.use('/bookinglist', bookingListRoutes);
+app.use('/routelisting', routeListRoutes);
+app.use('/bidlisting',bidListRoutes);
 // Web application routes
 app.use('/api/web', webRoutes);
 
