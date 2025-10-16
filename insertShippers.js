@@ -15,15 +15,15 @@ async function insertShipper() {
     // Example shipper data (with U.S. addresses)
     const shippers = [
       {
-        userId: '68e4fff8f371a0aabdd7d61a', // priya.s@santhila.co
+        userId: '68ef9730262301d309438337', // priya.s@santhila.co
         companyName: 'Santhila Exports Inc',
         dba: 'Santhila Shipping',
         photo: '',
         address: '600 Travis St',
         city: 'Houston',
         state: 'Texas',
-        zipCode: '77002',
-        country: 'USA',
+        zipCode: '77902',
+        country: 'America',
         totalBookings: 5,
         outstandingPayouts: 1000,
         status: 'active',

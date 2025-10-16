@@ -186,6 +186,9 @@ const spaceListRoutes = require('./routes/admin/spaceListingRoutes');
 const carrierListRoutes = require('./routes/admin/carrierListingRoutes');
 const shipperListRoutes = require('./routes/admin/shipperListingRoutes');
 const truckListRoutes = require("./routes/admin/truckListingRoutes");
+const bookingListingRoutes = require("./routes/admin/bookingListingRoutes");
+const routeListing = require('./routes/admin/routeListingRoutes');
+const bidListing = require('./routes/admin/bidListingRoutes');
 
 const webRoutes = require('./routes/web');
 // const mobileRoutes = require('./routes/mobile');
@@ -202,6 +205,10 @@ app.use('/spacelisting', spaceListRoutes);
 app.use('/carrierlisting', carrierListRoutes); 
 app.use('/shipperlisting', shipperListRoutes);
 app.use('/trucklisting', truckListRoutes);
+app.use('/bookinglisting',bookingListingRoutes);
+app.use('/routelisting',routeListing);
+app.use('/bidlisting',bidListing);
+
 // Web application routes
 app.use('/api/web', webRoutes);
 

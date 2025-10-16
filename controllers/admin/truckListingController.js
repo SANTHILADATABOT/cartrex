@@ -2,7 +2,7 @@ const Truck = require('../../models/Truck');
 
 
 
-// ✅ GET all trucks (only active ones)
+// GET all trucks 
 
 
 exports.getalltrucks = async (req, res) => {
@@ -18,7 +18,7 @@ exports.getalltrucks = async (req, res) => {
       });
     }
 
-    // ✅ Always send a response when data exists
+    
     return res.status(200).json({
       success: true,
       message: "Trucks fetched successfully",
@@ -36,7 +36,7 @@ exports.getalltrucks = async (req, res) => {
 
 
 
-// ✅ UPDATE truck (only if not deleted)
+// UPDATE truck 
 exports.updatetruck = async (req, res) => {
   try {
     const { truckId } = req.params;
@@ -69,7 +69,7 @@ exports.updatetruck = async (req, res) => {
 };
 
 
-// ✅ SOFT DELETE truck (set deletstatus = 1)
+//  DELETE truck 
 exports.deletetruck = async (req, res) => {
   try {
     const { truckId } = req.params;

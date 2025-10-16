@@ -12,7 +12,7 @@ const carrierSchema = new mongoose.Schema({
   totalRatings: { type: Number, default: 0 },
   totalBookings: { type: Number, default: 0 },
   outstandingPayouts: { type: Number, default: 0 },
-  status: { type: String, enum: ['pending', 'approved', 'rejected', 'suspended'], default: 'pending' },
+  status: { type: String, enum: ['active','inactive'], default: 'active' },
   recentActivity: { type: Date },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },

@@ -1,5 +1,3 @@
-
-
 const User = require('../../models/User');
 const Carrier = require('../../models/Carrier');
 const mongoose = require("mongoose");
