@@ -1,24 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const masterController = require('../../controllers/admin/masterController');
-// const { verifyToken } = require('../middlewares/authMiddleware'); // optional if auth required
+const controller = require("../../controllers/admin/masterController");
 
-// 🧩 Routes
+// Use ?type=category or ?type=subcategory
+router.post('/create', controller.create);
 
-// Create new Master Data
-router.post('/createmaster', masterController.createMaster);
-router.post('/createMasterVehicle', masterController.createMasterVehicle);
-
-// Get all Master Data
-router.get('/getallmasters', masterController.getAllMasters);
-
-// Get single Master Data by ID
-router.get('/getmastersbyid/:id', masterController.getMasterById);
-
-// Update Master Data by ID
-router.put('/updatemaster/:id',  masterController.updateMaster);
-
-// Soft delete Master Data by ID
-router.delete('/deletemaster/:id', masterController.deleteMaster);
+router.put('/update/:id', controller.update);
+router.delete('/delete/:id', controller.delete);
+router.get("/getallcategories", controller.getallcategories);
+router.get("/getallsubcategories", controller.getallsubcategories);
+router.get("/getcategorysubcategories", controller.getcategorysubcategories);
 
 module.exports = router;
