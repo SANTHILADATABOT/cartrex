@@ -64,10 +64,11 @@ exports.update = async (req, res) => {
 
 exports.delete = async (req, res) => {
   try {
-    const { type } = req.query;
+    // const { type } = req.query;
+     const type = (req.query.type  || '').replace(/"/g, '');
     const { id } = req.params;
     const Model = getModel(type);
-
+console.log("type",type,"id",id)
     const deleted = await Model.findByIdAndUpdate(
       id,
       { deleteStatus: 1, 'audit.deletedAt': new Date(), 'audit.deletedBy': req.userId },
