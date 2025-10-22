@@ -6,7 +6,6 @@ const adminUserController = require('../../controllers/admin/adminUserlistContro
 // Creat Admin User
 router.post('/createadminuser', adminUserController.createadminuser);
 
-
 // GetAll Admin User
 router.get('/getalladminusers', adminUserController.getalladminusers);
 

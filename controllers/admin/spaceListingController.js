@@ -52,20 +52,20 @@ exports.updateSpaceStatus = async (req, res) => {
 exports.DeleteSpace = async (req, res) => {
   try {
     const { id } = req.params;
-    const { deletedBy } = req.body; // take from body
+    // const { deletedBy } = req.body; // take from body
 
-    if (!deletedBy) {
-      return res.status(400).json({ message: "deletedBy is required" });
-    }
+    // if (!deletedBy) {
+    //   return res.status(400).json({ message: "deletedBy is required" });
+    // }
 
     const auditFields = {
       deletstatus: 1,
       deletedAt: new Date(),
-      deletedBy,//req.ip || req.connection.remoteAddress,
+      //deletedBy,//req.ip || req.connection.remoteAddress,
       deleted_ipAddress: req.ip || req.connection.remoteAddress,
       userAgent: req.get('User-Agent'),
       updatedAt: new Date(),
-      updatedBy: deletedBy,
+      //updatedBy: deletedBy,
     };
 
     const deletedSpace = await Space.findByIdAndUpdate(id, auditFields, {

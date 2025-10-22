@@ -192,6 +192,7 @@ const bookingListRoutes = require("./routes/admin/bookingListRoutes");
 const routeListRoutes = require('./routes/admin/routeListingRoutes')
 const bidListRoutes = require('./routes/admin/bidListingRoutes');
 const adminUserlistRoutes = require('./routes/admin/adminUserlistRoutes');
+const masterRoleRoutes = require('./routes/admin/masterRoleRoutes');
 
 const webRoutes = require('./routes/web');
 // const mobileRoutes = require('./routes/mobile');
@@ -212,6 +213,7 @@ app.use('/bookinglist', bookingListRoutes);
 app.use('/routelisting', routeListRoutes);
 app.use('/bidlisting',bidListRoutes);
 app.use('/adminuserlist',adminUserlistRoutes);
+app.use('/masterRoleRoutes',masterRoleRoutes);
 // Web application routes
 app.use('/api/web', webRoutes);
 
