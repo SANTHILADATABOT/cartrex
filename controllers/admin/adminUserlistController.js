@@ -83,6 +83,7 @@ exports.updateadminuser = async (req, res) => {
 exports.deleteadminuser = async (req, res) => {
   try {
     const { adminid } = req.params;
+    console.log('adminid=>',adminid)
 
     const adminUser = await AdminUser.findOne({ _id: adminid, 'audit.deletstatus': 0 });
     if (!adminUser) return res.status(404).json({ success: false, message: 'Admin user not found or already deleted' });

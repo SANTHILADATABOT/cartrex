@@ -20,8 +20,8 @@ const auditSchema = new mongoose.Schema({
 });
 
 const adminUserSchema = new mongoose.Schema({
-  adminId: { type: String, required: true, unique: true, trim: true },
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+  // adminId: { type: String, required: true, unique: true, trim: true },
+  // userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
   personalInfo: {
     firstName: { type: String, required: true, trim: true },
     lastName: { type: String, required: true, trim: true },
@@ -30,14 +30,16 @@ const adminUserSchema = new mongoose.Schema({
     profileImage: { type: String, default: null },
     department: { 
       type: String, 
-      enum: ['operations', 'finance', 'customer_support', 'technical', 'marketing', 'administration'],
+      enum: ['operations', 'finance', 'customer_support', 'technical', 'marketing', ' '],
       required: true 
     }
   },
-  roleId: { type: mongoose.Schema.Types.ObjectId, ref: 'AdminRole', required: true },
+  roleId: { type: mongoose.Schema.Types.ObjectId, ref: 'AdminRole', 
+    // required: true 
+    },
   roleType: {
     type: String,
-    required: true,
+    // required: true,
     enum: ['super_admin', 'admin', 'manager', 'data_entry', 'accounts', 'moderator', 'support', 'operations']
   },
   employment: {
@@ -56,8 +58,8 @@ const adminUserSchema = new mongoose.Schema({
 });
 
 // Indexes
-adminUserSchema.index({ adminId: 1 });
-adminUserSchema.index({ userId: 1 });
+// adminUserSchema.index({ adminId: 1 });
+// adminUserSchema.index({ userId: 1 });
 adminUserSchema.index({ roleId: 1 });
 adminUserSchema.index({ roleType: 1 });
 adminUserSchema.index({ 'personalInfo.department': 1 });

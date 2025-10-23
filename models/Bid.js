@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const bidSchema = new mongoose.Schema({
-  shipmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Shipper', required: true },
+  shipperId: { type: mongoose.Schema.Types.ObjectId, ref: 'Shipper', required: true },
   carrierId: { type: mongoose.Schema.Types.ObjectId, ref: 'Carrier', required: true },
   routeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Route', required: true },
 
@@ -48,7 +48,7 @@ const bidSchema = new mongoose.Schema({
 
   status: { 
     type: String, 
-    enum: ['pending', 'approved', 'expired'], 
+    enum: ['active','inactive'], 
     default: 'pending' 
   },
 
