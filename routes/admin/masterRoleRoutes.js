@@ -4,6 +4,8 @@ const masterRoleController = require('../../controllers/admin/masterRoleControll
 
 // Get all roles
 router.get('/getRoles', masterRoleController.getRoles);
+// Get all roles for dropdownlist
+router.get('/getRolesfordropdowns', masterRoleController.getRolesfordropdowns);
 // Get role by ID
 router.get('/getRoleById/:roleid', masterRoleController.getRoleById);
 // Add new role

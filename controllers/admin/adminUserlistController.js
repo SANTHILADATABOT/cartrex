@@ -6,11 +6,10 @@ const mongoose = require('mongoose');
 // CREATE Admin User
 exports.createadminuser = async (req, res) => {
   try {
-    const { personalInfo, employment, roleId = null, roleType = null, isActive = true, isSuperAdmin = false, audit } = req.body;
-
+    const { personalInfo =null, roleId = null, roleType = null, isActive = true, isSuperAdmin = false, audit } = req.body;
+    console.log(' req.body=> ',req.body);
     const adminUser = new AdminUser({
       personalInfo,
-      employment,
       roleId,
       roleType,
       isActive,
@@ -31,7 +30,7 @@ exports.getalladminusers = async (req, res) => {
   try {
     const adminUsers = await AdminUser.find({ 'audit.deletstatus': 0 })
       .populate('roleId')
-      .populate('employment.reportingManager', 'personalInfo.firstName personalInfo.lastName')
+      .populate('personalInfo.firstName personalInfo.lastName')
       .populate('audit.createdBy', 'personalInfo.firstName personalInfo.lastName')
       .populate('audit.updatedBy', 'personalInfo.firstName personalInfo.lastName');
 
