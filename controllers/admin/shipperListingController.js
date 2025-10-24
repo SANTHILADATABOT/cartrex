@@ -118,3 +118,36 @@ exports.deleteshipper = async (req, res) => {
   }
 };
 
+//Get Shipper By id 
+exports.getshipperbyId = async (req, res) => {
+  try {
+    const { shipperId } = req.params;
+
+    const shipper = await Shipper.findOne({ _id: shipperId, deletstatus: 0 })
+      .populate("userId", "firstName lastName email phone companyname role")
+      .populate("createdBy", "firstName lastName email")
+      .populate("updatedBy", "firstName lastName email");
+
+      console.log(shipper)
+
+    if (!shipper) {
+      return res.status(404).json({
+        success: false,
+        message: "Shipper not found or deleted",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Shipper details fetched successfully",
+      data: shipper,
+    });
+
+  } catch (error) {
+    console.error("Error fetching shipper by ID:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

@@ -99,7 +99,7 @@ exports.getadminuserbyid = async (req, res) => {
 
     // Fetch only needed fields
     const adminUser = await AdminUser.findOne({ _id: adminid, 'audit.deletstatus': 0 })
-      .select('personalInfo.firstName personalInfo.lastName personalInfo.email roleType isActive');
+      .select('personalInfo.firstName personalInfo.lastName personalInfo.email roleId isActive');
 
     if (!adminUser) {
       return res.status(404).json({
@@ -113,7 +113,7 @@ exports.getadminuserbyid = async (req, res) => {
       firstName: adminUser.personalInfo?.firstName || '',
       lastName: adminUser.personalInfo?.lastName || '',
       email: adminUser.personalInfo?.email || '',
-      role: adminUser.roleType || '',
+      role:  adminUser.roleId || '' ,
       status: adminUser.isActive ? 'Active' : 'Inactive',
     };
 

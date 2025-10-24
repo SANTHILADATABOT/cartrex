@@ -11,4 +11,6 @@ router.put('/updateshipper/:userId', shipperController.updateshipper);
 // Delete shipper 
 router.delete('/deleteshipper/:userId', shipperController.deleteshipper);
 
+router.get('/getshipperbyId/:shipperId',shipperController.getshipperbyId);
+
 module.exports = router;
