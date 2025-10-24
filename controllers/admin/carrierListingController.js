@@ -132,6 +132,37 @@ exports.updateCarrierStatusById = async (req, res) => {
   }
 };
 
+exports.getcarrierbyId = async (req, res) => {
+  try {
+    const { carrierId } = req.params;
+
+    // Find the carrier
+    const carrier = await Carrier.findOne({ _id: carrierId, deletstatus: 0 })
+      .populate("userId", "firstName lastName email phone role")
+      .populate("createdBy", "firstName lastName email")
+      .populate("updatedBy", "firstName lastName email");
+
+    if (!carrier) {
+      return res.status(404).json({
+        success: false,
+        message: "Carrier not found or deleted",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Carrier details fetched successfully",
+      data: carrier,
+    });
+  } catch (error) {
+    console.error("Error fetching carrier by ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
 
 
 

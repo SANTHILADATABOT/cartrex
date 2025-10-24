@@ -84,16 +84,12 @@ exports.updateshipperstatusbyId = async (req, res) => {
   try {
     const { shipperId } = req.params;
     const { status } = req.body;
-
-    // Validate status input
     if (!["active", "inactive"].includes(status)) {
       return res.status(400).json({
         success: false,
         message: "Invalid status. Allowed values: active, inactive",
       });
     }
-
-    // Find the shipper by ID and make sure it’s not deleted
     const shipper = await Shipper.findOne({ _id: shipperId, deletstatus: 0 });
     if (!shipper) {
       return res.status(404).json({
@@ -101,8 +97,6 @@ exports.updateshipperstatusbyId = async (req, res) => {
         message: "Shipper not found or deleted",
       });
     }
-
-    // Update status and audit info
     shipper.status = status;
     shipper.updatedAt = new Date();
     shipper.updatedBy = req.user?._id || null;
@@ -122,6 +116,38 @@ exports.updateshipperstatusbyId = async (req, res) => {
     });
   }
 };
+
+exports.getshipperbyId = async (req, res) => {
+  try {
+    const { shipperId } = req.params;
+
+    const shipper = await Shipper.findOne({ _id: shipperId, deletstatus: 0 })
+      .populate("userId", "firstName lastName email phone companyname role")
+      .populate("createdBy", "firstName lastName email")
+      .populate("updatedBy", "firstName lastName email");
+
+    if (!shipper) {
+      return res.status(404).json({
+        success: false,
+        message: "Shipper not found or deleted",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Shipper details fetched successfully",
+      data: shipper,
+    });
+
+  } catch (error) {
+    console.error("Error fetching shipper by ID:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 
 
 exports.deleteshipper = async (req, res) => {

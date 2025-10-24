@@ -66,6 +66,44 @@ exports.updateadminuser = async (req, res) => {
   }
 };
 
+// ✅ UPDATE Admin User Active Status
+exports.updateadminuserstatus = async (req, res) => {
+  try {
+    const { adminid } = req.params;
+    const { isActive } = req.body;
+
+    if (!["active", "inactive"].includes(isActive))  {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid status. Allowed values: active, inactive"
+      });
+    }
+
+    const adminUser = await AdminUser.findOne({ _id: adminid, 'audit.deletstatus': 0 });
+    if (!adminUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'Admin user not found or deleted.'
+      });
+    }
+
+    adminUser.isActive = isActive;
+    adminUser.audit.updatedAt = new Date();
+    adminUser.audit.updatedBy = req.user?._id || null; // optional if auth middleware is added
+
+    await adminUser.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Admin user has been ${isActive ? 'activated' : 'deactivated'} successfully.`,
+      data: adminUser
+    });
+
+  } catch (err) {
+    console.error("Error updating admin user status:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
 
 
 //  DELETE Admin User 

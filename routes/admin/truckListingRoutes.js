@@ -10,6 +10,8 @@ router.put('/updatetruck/:truckId', truckController.updatetruck);
 
 router.put('/updatetruckstatusbyId/:truckId',truckController.updatetruckstatusbyId);
 
+router.get('/gettruckbyId/:truckId', truckController.gettruckbyId);
+
 // Soft delete truck
 router.delete('/deletetruck/:truckId', truckController.deletetruck);
 

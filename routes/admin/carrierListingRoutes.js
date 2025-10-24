@@ -6,10 +6,14 @@ const carrierController = require("../../controllers/admin/carrierListingControl
 // GET all carriers
 router.get('/getallcarriers', carrierController.getallcarriers);
 
+
+
 // UPDATE carrier
 router.put('/updatecarrier/:userId', carrierController.updatecarrier);
 
 router.put('/updatecarrierstatusbyId/:carrierId',carrierController.updateCarrierStatusById);
+
+router.get('/getcarrierbyId/:carrierId', carrierController.getcarrierbyId);
 
 // DELETE (soft delete) carrier
 router.delete('/deletecarrier/:userId', carrierController.deletecarrier);

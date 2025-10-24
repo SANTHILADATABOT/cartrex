@@ -10,6 +10,10 @@ router.put('/updateshipper/:userId', shipperController.updateshipper);
 
 router.put('/updateshipperstatusbyId/:shipperId',shipperController.updateshipperstatusbyId);
 
+
+router.get('/getshipperbyId/:shipperId',shipperController.getshipperbyId);
+
+
 // Delete shipper 
 router.delete('/deleteshipper/:userId', shipperController.deleteshipper);
 
