@@ -57,8 +57,8 @@ async function insertAdminRoles() {
     // Roles Data
     const rolesData = [
       {
-        roleName: 'Super Admin',
-        roleType: 'super_admin',
+        roleName: 'Carrier',
+        roleType: 'carrier',
         description: 'Has full access to all system modules and settings.',
         permissions: basePermissions,
         isDefault: true,
@@ -66,8 +66,8 @@ async function insertAdminRoles() {
         audit: createAudit()
       },
       {
-        roleName: 'Admin',
-        roleType: 'admin',
+        roleName: 'Shipper',
+        roleType: 'shipper',
         description: 'Can manage most administrative tasks except system-level configurations.',
         permissions: {
           ...basePermissions,
@@ -77,50 +77,6 @@ async function insertAdminRoles() {
         isActive: true,
         audit: createAudit()
       },
-      {
-        roleName: 'Manager',
-        roleType: 'manager',
-        description: 'Can manage bookings, users, and reports.',
-        permissions: {
-          dashboard: { view: true, export: true },
-          manageBookings: { view: true, create: true, edit: true, delete: false, approve: true },
-          manageUsers: { view: true, create: false, edit: false, delete: false },
-          reportsAnalytics: { view: true, export: true },
-          systemSettings: { view: false, edit: false }
-        },
-        isDefault: false,
-        isActive: true,
-        audit: createAudit()
-      },
-      {
-        roleName: 'Data Entry',
-        roleType: 'data_entry',
-        description: 'Can enter and update data but cannot delete or approve items.',
-        permissions: {
-          dashboard: { view: true, export: false },
-          masters: { view: true, create: true, edit: true, delete: false },
-          manageBookings: { view: true, create: true, edit: true, delete: false },
-          manageUsers: { view: true },
-          reportsAnalytics: { view: true, export: false }
-        },
-        isDefault: false,
-        isActive: true,
-        audit: createAudit()
-      },
-      {
-        roleName: 'Support Staff',
-        roleType: 'support',
-        description: 'Handles customer complaints and disputes.',
-        permissions: {
-          dashboard: { view: true },
-          complaintsDisputes: { view: true, create: true, edit: true, delete: false, resolve: true },
-          manageUsers: { view: true },
-          reportsAnalytics: { view: true }
-        },
-        isDefault: false,
-        isActive: true,
-        audit: createAudit()
-      }
     ];
 
     // Insert data

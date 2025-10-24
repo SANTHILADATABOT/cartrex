@@ -4,7 +4,39 @@ const User = require('../../models/User');
 const Carrier = require('../../models/Carrier');
 const mongoose = require("mongoose");
 
+exports.addcarrier = async (req, res) => {
+  try{
+    const data = req.body;
+    console.log(' req.body=> ',data);
+    const UserData = new User({
+      email:data?.email,
+      firstName: data?.firstName,
+      lastName : data?.lastName,
+      phone : data?.phone,
+      roleId : data?.roleId,
+      isApproved : true,
+      isActive : true,
+      password : data?.phone,
+      audit: { ...data?.audit , deletstatus: 0 }
+    });
 
+    const saved = await UserData.save();
+    if(!saved){
+      return res.status(404).json({ success: false, message: "User not found or deleted" });
+    }
+    const carrierData = new Carrier({
+       userId:saved._id,
+       companyName:data?.companyName,
+       status:data?.status,
+    });
+    res.status(201).json({ success: true, data: adminUser });
+  }
+  catch(error){
+    console.error(err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+
+}
 //Get All Carrier from User and Carrier
 
 exports.getallcarriers = async (req, res) => {
@@ -45,10 +77,7 @@ exports.getallcarriers = async (req, res) => {
   }
 };
 
-
-
 //Update Carrier from User and Carrier
-
 
 exports.updatecarrier = async (req, res) => {
   try {
@@ -89,8 +118,6 @@ exports.updatecarrier = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
-
 
 //Delete Carrier from User and Carrier
 

@@ -1,9 +1,27 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
+// Audit Schema
+const auditSchema = new mongoose.Schema({
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+  updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  deletedAt: { type: Date },
+  deletstatus: {
+    type: Number,
+    enum: [0, 1], // Only allow 0 or 1
+    default: 0
+  },
+  deletedipAddress: { type: String },
+  ipAddress: { type: String },
+  userAgent: { type: String }
+});
+
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-  password: { type: String, required: true ,select: false},
+  password: { type: String, required: true ,select: false },
   firstName: { type: String, required: true, trim: true },
   lastName: { type: String, trim: true },
   phone: { type: String, required: true },
@@ -18,7 +36,7 @@ const userSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   //  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
   updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   deletstatus: {
@@ -29,7 +47,8 @@ const userSchema = new mongoose.Schema({
   deletedAt: { type: Date },
   deletedipAddress: { type: String },
   ipAddress: { type: String },
-  userAgent: { type: String }
+  userAgent: { type: String },
+  audit: { type: auditSchema, required: true } // embedding audit schema
 });
 
 userSchema.pre('save', async function(next) {

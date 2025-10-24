@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 const carrierController = require("../../controllers/admin/carrierListingController");
 
-
+// Creat carrier User
+router.post('/createCarrierUser', carrierController.addcarrier);
 // GET all carriers
 router.get('/getallcarriers', carrierController.getallcarriers);
 
