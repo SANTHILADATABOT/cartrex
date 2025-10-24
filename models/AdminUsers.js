@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const auditSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'AdminUser', required: true },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'AdminUser'},
   updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'AdminUser' },
   deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'AdminUser' },
   deletedAt: { type: Date },
@@ -25,12 +25,13 @@ const adminUserSchema = new mongoose.Schema({
   personalInfo: {
     firstName: { type: String, required: true, trim: true },
     lastName: { type: String, required: true, trim: true },
-    phone: { type: String, trim: true },
+    email: { type: String, required: true, trim: true },
+    phone: { type: String, trim: true }, 
     profileImage: { type: String, default: null },
     department: { 
       type: String, 
       enum: ['operations', 'finance', 'customer_support', 'technical', 'marketing', ' '],
-      required: true 
+      // required: true 
     }
   },
   roleId: { type: mongoose.Schema.Types.ObjectId, ref: 'AdminRole', 
@@ -41,14 +42,14 @@ const adminUserSchema = new mongoose.Schema({
     // required: true,
     enum: ['super_admin', 'admin', 'manager', 'data_entry', 'accounts', 'moderator', 'support', 'operations']
   },
-  employment: {
-    employeeId: { type: String, required: true, unique: true, trim: true },
-    hireDate: { type: Date, required: true },
-    position: { type: String, required: true, trim: true },
-    reportingManager: { type: mongoose.Schema.Types.ObjectId, ref: 'AdminUser', default: null },
-    employmentStatus: { type: String, enum: ['active', 'probation', 'suspended', 'terminated', 'resigned'], default: 'active' }
-  },
-  isActive: { type: String, enum: ['active', 'inactive'], default: 'active' },
+  // employment: {
+  //   employeeId: { type: String, required: true, unique: true, trim: true },
+  //   hireDate: { type: Date, required: true },
+  //   position: { type: String, required: true, trim: true },
+  //   reportingManager: { type: mongoose.Schema.Types.ObjectId, ref: 'AdminUser', default: null },
+  //   employmentStatus: { type: String, enum: ['active', 'probation', 'suspended', 'terminated', 'resigned'], default: 'active' }
+  // },
+  isActive: { type: Boolean, default: true },
   isSuperAdmin: { type: Boolean, default: false },
   lastActive: { type: Date, default: null },
   audit: { type: auditSchema, required: true } // embedding audit schema
@@ -61,9 +62,9 @@ const adminUserSchema = new mongoose.Schema({
 // adminUserSchema.index({ userId: 1 });
 adminUserSchema.index({ roleId: 1 });
 adminUserSchema.index({ roleType: 1 });
-adminUserSchema.index({ 'personalInfo.department': 1 });
+// adminUserSchema.index({ 'personalInfo.department': 1 });
 adminUserSchema.index({ isActive: 1 });
-adminUserSchema.index({ 'employment.employmentStatus': 1 });
+// adminUserSchema.index({ 'employment.employmentStatus': 1 });
 adminUserSchema.index({ 'personalInfo.firstName': 1, 'personalInfo.lastName': 1 });
 
 // Virtual for full name

@@ -3,7 +3,22 @@ const AdminRole = require('../../models/AdminRoles');
 // GET all roles
 exports.getRoles = async (req, res) => {
   try {
-    const roles = await AdminRole.find({ isActive: true });
+    const roles = await AdminRole.find({ 
+      isActive: true ,
+      'audit.deletstatus': 0   // ✅ include deletstatus condition
+    });
+    res.status(200).json({ success: true, data: roles });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+// GET all roles
+exports.getRolesfordropdowns = async (req, res) => {
+  try {
+    const roles = await AdminRole.find({ 
+      isActive: true ,
+      'audit.deletstatus': 0   // ✅ include deletstatus condition
+    }).select('_id roleName roleType');
     res.status(200).json({ success: true, data: roles });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
