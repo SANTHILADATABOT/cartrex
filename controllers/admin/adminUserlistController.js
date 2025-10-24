@@ -91,3 +91,43 @@ exports.deleteadminuser = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+
+// Get Admin User by Id 
+exports.getadminuserbyid = async (req, res) => {
+  try {
+    const { adminid } = req.params;
+
+    // Fetch only needed fields
+    const adminUser = await AdminUser.findOne({ _id: adminid, 'audit.deletstatus': 0 })
+      .select('personalInfo.firstName personalInfo.lastName personalInfo.email roleType isActive');
+
+    if (!adminUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'Admin user not found or deleted',
+      });
+    }
+
+    // Format the response
+    const responseData = {
+      firstName: adminUser.personalInfo?.firstName || '',
+      lastName: adminUser.personalInfo?.lastName || '',
+      email: adminUser.personalInfo?.email || '',
+      role: adminUser.roleType || '',
+      status: adminUser.isActive ? 'Active' : 'Inactive',
+    };
+
+    res.status(200).json({
+      success: true,
+      data: responseData,
+    });
+
+  } catch (err) {
+    console.error('Error fetching admin user:', err);
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
