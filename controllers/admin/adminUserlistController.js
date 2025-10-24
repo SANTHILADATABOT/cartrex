@@ -40,6 +40,22 @@ exports.getalladminusers = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+// GET ALL Admin Users 
+exports.getAdminDataById = async (req, res) => {
+  try {
+    const { adminid } = req.params;
+    const adminUser = await AdminUser.findOne({ _id: adminid, 'audit.deletstatus': 0 }).populate('roleId')
+      .populate('personalInfo.firstName personalInfo.lastName')
+      .populate('audit.createdBy', 'personalInfo.firstName personalInfo.lastName')
+      .populate('audit.updatedBy', 'personalInfo.firstName personalInfo.lastName');
+    if (!adminUser) return res.status(404).json({ success: false, message: 'Admin user not found or already deleted' });
+
+    res.status(200).json({ success: true, data: adminUser });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
 
 
 
@@ -115,7 +131,7 @@ exports.deleteadminuser = async (req, res) => {
     const adminUser = await AdminUser.findOne({ _id: adminid, 'audit.deletstatus': 0 });
     if (!adminUser) return res.status(404).json({ success: false, message: 'Admin user not found or already deleted' });
 
-    adminUser.isActive = false;
+    adminUser.isActive = "inactive";
     if (adminUser.audit) {
       adminUser.audit.deletstatus = 1;
       adminUser.audit.deletedAt = new Date();
@@ -126,5 +142,45 @@ exports.deleteadminuser = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Get Admin User by Id 
+exports.getadminuserbyid = async (req, res) => {
+  try {
+    const { adminid } = req.params;
+
+    // Fetch only needed fields
+    const adminUser = await AdminUser.findOne({ _id: adminid, 'audit.deletstatus': 0 })
+      .select('personalInfo.firstName personalInfo.lastName personalInfo.email roleType roleId isActive _id');
+
+    if (!adminUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'Admin user not found or deleted',
+      });
+    }
+
+    // Format the response
+    const responseData = {
+      adminId: adminUser?._id,
+      firstName: adminUser.personalInfo?.firstName || '',
+      lastName: adminUser.personalInfo?.lastName || '',
+      email: adminUser.personalInfo?.email || '',
+      role: adminUser.roleId || '',
+      status: adminUser.isActive ? 'Active' : 'Inactive',
+    };
+
+    res.status(200).json({
+      success: true,
+      data: responseData,
+    });
+
+  } catch (err) {
+    console.error('Error fetching admin user:', err);
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
   }
 };
