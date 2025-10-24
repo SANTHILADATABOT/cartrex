@@ -1,5 +1,3 @@
-
-
 const User = require('../../models/User');
 const Carrier = require('../../models/Carrier');
 const mongoose = require("mongoose");
@@ -89,6 +87,51 @@ exports.updatecarrier = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// Update Carrier Status by Carrier ID
+exports.updateCarrierStatusById = async (req, res) => {
+  try {
+    const { carrierId } = req.params;
+    const { status } = req.body; // expected "active" or "inactive"
+
+    // Validate input
+    if (!["active", "inactive"].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid status. Allowed values: active, inactive",
+      });
+    }
+
+    // Find carrier
+    const carrier = await Carrier.findOne({ _id: carrierId, deletstatus: 0 });
+    if (!carrier) {
+      return res.status(404).json({
+        success: false,
+        message: "Carrier not found or deleted",
+      });
+    }
+
+    // Update status
+    carrier.status = status;
+    carrier.updatedAt = new Date();
+    carrier.updatedBy = req.user?._id || null;
+    await carrier.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Carrier status updated to ${status}`,
+      data: carrier,
+    });
+
+  } catch (error) {
+    console.error("Error updating carrier status:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 
 
 

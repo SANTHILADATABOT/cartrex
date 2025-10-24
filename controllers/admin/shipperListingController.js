@@ -41,26 +41,26 @@ exports.updateshipper = async (req, res) => {
     const { userId } = req.params;
     const updateData = req.body;
 
-   
+
     const user = await User.findOne({ _id: userId, deletstatus: 0 });
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found or deleted" });
     }
 
-  
+
     const shipper = await Shipper.findOne({ userId: userId, deletstatus: 0 });
     if (!shipper) {
       return res.status(404).json({ success: false, message: "Shipper not found or deleted" });
     }
 
- 
+
     const userFields = ["firstName", "lastName", "email", "phone"];
     userFields.forEach(f => { if (updateData[f]) user[f] = updateData[f]; });
     user.updatedAt = new Date();
     user.updatedBy = req.user?._id || null;
     await user.save();
 
-  
+
     const shipperFields = ["companyName", "dba", "photo", "address", "city", "state", "zipCode", "country", "status"];
     shipperFields.forEach(f => { if (updateData[f] !== undefined) shipper[f] = updateData[f]; });
     shipper.updatedAt = new Date();
@@ -76,6 +76,50 @@ exports.updateshipper = async (req, res) => {
   } catch (error) {
     console.error("Error updating shipper:", error);
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ✅ Update Shipper Status by Shipper ID
+exports.updateshipperstatusbyId = async (req, res) => {
+  try {
+    const { shipperId } = req.params;
+    const { status } = req.body;
+
+    // Validate status input
+    if (!["active", "inactive"].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid status. Allowed values: active, inactive",
+      });
+    }
+
+    // Find the shipper by ID and make sure it’s not deleted
+    const shipper = await Shipper.findOne({ _id: shipperId, deletstatus: 0 });
+    if (!shipper) {
+      return res.status(404).json({
+        success: false,
+        message: "Shipper not found or deleted",
+      });
+    }
+
+    // Update status and audit info
+    shipper.status = status;
+    shipper.updatedAt = new Date();
+    shipper.updatedBy = req.user?._id || null;
+    await shipper.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Shipper status updated to ${status}`,
+      data: shipper,
+    });
+
+  } catch (error) {
+    console.error("Error updating shipper status:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
@@ -95,7 +139,7 @@ exports.deleteshipper = async (req, res) => {
       return res.status(404).json({ success: false, message: "Shipper not found or already deleted" });
     }
 
-   
+
     shipper.deletstatus = 1;
     shipper.deletedAt = new Date();
     shipper.deletedBy = req.user?._id || null;

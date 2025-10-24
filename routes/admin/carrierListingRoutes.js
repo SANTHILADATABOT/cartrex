@@ -9,6 +9,8 @@ router.get('/getallcarriers', carrierController.getallcarriers);
 // UPDATE carrier
 router.put('/updatecarrier/:userId', carrierController.updatecarrier);
 
+router.put('/updatecarrierstatusbyId/:carrierId',carrierController.updateCarrierStatusById);
+
 // DELETE (soft delete) carrier
 router.delete('/deletecarrier/:userId', carrierController.deletecarrier);
 

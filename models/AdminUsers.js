@@ -48,7 +48,7 @@ const adminUserSchema = new mongoose.Schema({
     reportingManager: { type: mongoose.Schema.Types.ObjectId, ref: 'AdminUser', default: null },
     employmentStatus: { type: String, enum: ['active', 'probation', 'suspended', 'terminated', 'resigned'], default: 'active' }
   },
-  isActive: { type: Boolean, default: true },
+  isActive: { type: String, enum: ['active', 'inactive'], default: 'active' },
   isSuperAdmin: { type: Boolean, default: false },
   lastActive: { type: Date, default: null },
   audit: { type: auditSchema, required: true } // embedding audit schema

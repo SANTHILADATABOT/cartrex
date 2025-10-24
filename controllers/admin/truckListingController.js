@@ -69,6 +69,49 @@ exports.updatetruck = async (req, res) => {
 };
 
 
+// ✅ Update Truck Status by Truck ID
+exports.updatetruckstatusbyId = async (req, res) => {
+  try {
+    const { truckId } = req.params;
+    const { status } = req.body; 
+    if (!["active", "inactive", "under_maintenance"].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid status. Allowed values: active, inactive, under_maintenance",
+      });
+    }
+
+    const truck = await Truck.findOne({ _id: truckId, deletstatus: 0 })
+      .populate("carrierId", "companyName");
+
+    if (!truck) {
+      return res.status(404).json({
+        success: false,
+        message: "Truck not found or deleted",
+      });
+    }
+    truck.status = status;
+    truck.updatedAt = new Date();
+    truck.updatedBy = req.user?._id || null;
+    await truck.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Truck status updated to ${status}`,
+      data: truck,
+    });
+
+  } catch (error) {
+    console.error("Error updating truck status:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+
+
 // ✅ SOFT DELETE truck (set deletstatus = 1)
 exports.deletetruck = async (req, res) => {
   try {
