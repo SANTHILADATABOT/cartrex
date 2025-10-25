@@ -168,7 +168,7 @@ exports.getadminuserbyid = async (req, res) => {
       lastName: adminUser.personalInfo?.lastName || '',
       email: adminUser.personalInfo?.email || '',
       role: adminUser.roleId || '',
-      status: adminUser.isActive ? 'Active' : 'Inactive',
+      status: adminUser.isActive,
     };
 
     res.status(200).json({
