@@ -49,6 +49,8 @@ const userSchema = new mongoose.Schema({
   ipAddress: { type: String },
   userAgent: { type: String },
   audit: { type: auditSchema } // embedding audit schema
+ 
+
 });
 
 userSchema.pre('save', async function(next) {
