@@ -103,8 +103,8 @@ exports.updatecarrier = async (req, res) => {
     carrierFields.forEach(f => { if (updateData[f] !== undefined) carrier[f] = updateData[f]; });
     carrier.updatedAt = new Date();
     carrier.updatedBy = req.user?._id || null;
-    await carrier.save();
-
+    await user.save();
+    
     res.status(200).json({
       success: true,
       message: "Carrier and User updated successfully",
@@ -121,8 +121,7 @@ exports.updatecarrier = async (req, res) => {
 exports.updateCarrierStatusById = async (req, res) => {
   try {
     const { carrierId } = req.params;
-    const { status } = req.body; // expected "active" or "inactive"
-
+    const { status } = req.body; 
     // Validate input
     if (!["active", "inactive"].includes(status)) {
       return res.status(400).json({
