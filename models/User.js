@@ -48,7 +48,7 @@ const userSchema = new mongoose.Schema({
   deletedipAddress: { type: String },
   ipAddress: { type: String },
   userAgent: { type: String },
-  audit: { type: auditSchema, required: true } // embedding audit schema
+  audit: { type: auditSchema } // embedding audit schema
 });
 
 userSchema.pre('save', async function(next) {
