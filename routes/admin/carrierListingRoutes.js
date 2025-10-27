@@ -20,8 +20,8 @@ router.get('/getcarrierbyId/:carrierId', carrierController.getcarrierbyId);
 router.delete('/deletecarrier/:userId', carrierController.deletecarrier);
 
 //Get By id 
-router.get('/getcarrierbyid/:userid', carrierController.getcarrierbyid);
-
+// router.get('/getcarrierbyid/:userid', carrierController.getcarrierbyid);
+router.get('/getcarrierbyId/:carrierId', carrierController.getcarrierbyId);
 
 
 module.exports = router;
