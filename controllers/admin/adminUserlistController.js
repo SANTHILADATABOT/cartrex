@@ -17,6 +17,16 @@ exports.createadminuser = async (req, res) => {
       audit: { ...audit, deletstatus: 0 }
     });
 
+       const existingUser = await AdminUser.findOne({
+      'personalInfo.email': personalInfo.email
+    });
+
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email already exists'
+      });
+    }
     await adminUser.save();
     res.status(201).json({ success: true, data: adminUser });
   } catch (err) {
@@ -168,7 +178,7 @@ exports.getadminuserbyid = async (req, res) => {
       lastName: adminUser.personalInfo?.lastName || '',
       email: adminUser.personalInfo?.email || '',
       role: adminUser.roleId || '',
-      status: adminUser.isActive ? 'Active' : 'Inactive',
+      status: adminUser.isActive,
     };
 
     res.status(200).json({

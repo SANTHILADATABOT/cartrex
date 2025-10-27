@@ -118,12 +118,8 @@ exports.updatetruck = async (req, res) => {
     if (updateData.location) {
       const newLoc = updateData.location;
 
-      // Update only provided location fields (city/state/country etc.)
       if (newLoc.city !== undefined) truck.location.city = newLoc.city;
       if (newLoc.state !== undefined) truck.location.state = newLoc.state;
-   
-
-      // Remove it from updateData so it doesn’t overwrite the object
       delete updateData.location;
     }
 

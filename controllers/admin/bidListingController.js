@@ -33,6 +33,43 @@ exports.getallbids = async (req, res) => {
   }
 };
 
+// ✅ GET bid by ID
+exports.getbidbyId = async (req, res) => {
+  try {
+    const { bidId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(bidId)) {
+      return res.status(400).json({ success: false, message: "Invalid bid ID" });
+    }
+    const bid = await Bid.findOne({ _id: bidId, deletstatus: 0 })
+      .populate('shipperId', 'companyName dba email')      // from Shipper collection
+      .populate('carrierId', 'companyName dba email')      // from Carrier collection
+      .populate('routeId', 'routeName origin destination') // from Route collection
+      .populate('createdBy', 'firstName lastName email')   // from User
+      .populate('updatedBy', 'firstName lastName email');
+
+  
+    if (!bid) {
+      return res.status(404).json({
+        success: false,
+        message: "Bid not found or deleted"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Bid details fetched successfully",
+      data: bid
+    });
+
+  } catch (error) {
+    console.error("Error fetching bid by ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+};
+
 
 //  UPDATE bid
 exports.updatebid = async (req, res) => {
