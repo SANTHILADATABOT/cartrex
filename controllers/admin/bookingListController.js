@@ -5,8 +5,8 @@ const mongoose = require('mongoose');
 exports.getallbookings = async (req, res) => {
   try {
     const bookings = await Booking.find({ deletstatus: 0 })
-      // .populate('shipperId', 'companyName name email')
-      // .populate('carrierId', 'companyName name email')
+       .populate('shipperId', 'companyName name email')
+       .populate('carrierId', 'companyName name email');
       // .populate('truckId', 'nickname registrationNumber')
       // .populate('createdBy', 'name email')
       // .populate('updatedBy', 'name email')

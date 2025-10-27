@@ -1,10 +1,40 @@
-
-
 const User = require('../../models/User');
 const Carrier = require('../../models/Carrier');
 const mongoose = require("mongoose");
 
+exports.addcarrier = async (req, res) => {
+  try{
+    const data = req.body;
+    console.log(' req.body=> ',data);
+    const UserData = new User({
+      email:data?.email,
+      firstName: data?.firstName,
+      lastName : data?.lastName,
+      phone : data?.phone,
+      roleId : data?.roleId,
+      isApproved : true,
+      isActive : true,
+      password : data?.phone,
+      audit: { ...data?.audit , deletstatus: 0 }
+    });
 
+    const saved = await UserData.save();
+    if(!saved){
+      return res.status(404).json({ success: false, message: "User not found or deleted" });
+    }
+    const carrierData = new Carrier({
+       userId:saved._id,
+       companyName:data?.companyName,
+       status:data?.status,
+    });
+    res.status(201).json({ success: true, data: adminUser });
+  }
+  catch(error){
+    console.error(err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+
+}
 //Get All Carrier from User and Carrier
 
 exports.getallcarriers = async (req, res) => {
@@ -45,10 +75,7 @@ exports.getallcarriers = async (req, res) => {
   }
 };
 
-
-
 //Update Carrier from User and Carrier
-
 
 exports.updatecarrier = async (req, res) => {
   try {
@@ -76,8 +103,8 @@ exports.updatecarrier = async (req, res) => {
     carrierFields.forEach(f => { if (updateData[f] !== undefined) carrier[f] = updateData[f]; });
     carrier.updatedAt = new Date();
     carrier.updatedBy = req.user?._id || null;
-    await carrier.save();
-
+    await user.save();
+    
     res.status(200).json({
       success: true,
       message: "Carrier and User updated successfully",
@@ -89,6 +116,81 @@ exports.updatecarrier = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// Update Carrier Status by Carrier ID
+exports.updateCarrierStatusById = async (req, res) => {
+  try {
+    const { carrierId } = req.params;
+    const { status } = req.body; 
+    // Validate input
+    if (!["active", "inactive"].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid status. Allowed values: active, inactive",
+      });
+    }
+
+    // Find carrier
+    const carrier = await Carrier.findOne({ _id: carrierId, deletstatus: 0 });
+    if (!carrier) {
+      return res.status(404).json({
+        success: false,
+        message: "Carrier not found or deleted",
+      });
+    }
+
+    // Update status
+    carrier.status = status;
+    carrier.updatedAt = new Date();
+    carrier.updatedBy = req.user?._id || null;
+    await carrier.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Carrier status updated to ${status}`,
+      data: carrier,
+    });
+
+  } catch (error) {
+    console.error("Error updating carrier status:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+exports.getcarrierbyId = async (req, res) => {
+  try {
+    const { carrierId } = req.params;
+
+    // Find the carrier
+    const carrier = await Carrier.findOne({ _id: carrierId, deletstatus: 0 })
+      .populate("userId", "firstName lastName email phone role")
+      .populate("createdBy", "firstName lastName email")
+      .populate("updatedBy", "firstName lastName email");
+
+    if (!carrier) {
+      return res.status(404).json({
+        success: false,
+        message: "Carrier not found or deleted",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Carrier details fetched successfully",
+      data: carrier,
+    });
+  } catch (error) {
+    console.error("Error fetching carrier by ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
 
 
 
@@ -132,6 +234,61 @@ exports.deletecarrier = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
+//Get Carrier by id 
+
+exports.getcarrierbyid = async (req, res) => {
+  try {
+    const { userid } = req.params;
+
+    // 1️⃣ Fetch the user details
+    const user = await User.findOne({
+      _id: userid,
+      deletstatus: 0,
+      role: "carrier",
+    }).select("firstName lastName email phone companyName totalBookings isActive");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Carrier user not found or deleted",
+      });
+    }
+
+    // 2️⃣ Fetch the carrier details linked to this user
+    const carrier = await Carrier.findOne({
+      userId: userid,
+      deletstatus: 0,
+    })
+      .select("companyName noOfBookings status");
+
+    // 3️⃣ Prepare response
+    const responseData = {
+      firstName: user.firstName || "",
+      lastName: user.lastName || "",
+      email: user.email || "",
+      phone: user.phone || "",
+      companyName: carrier?.companyName || "",
+      totalBookings: carrier?.totalBookings || 0,
+      status: user.isActive ? "Active" : "Inactive",
+    };
+
+    // 4️⃣ Send response
+    res.status(200).json({
+      success: true,
+      data: responseData,
+    });
+
+  } catch (error) {
+    console.error("Error fetching carrier by ID:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+
 
 
 

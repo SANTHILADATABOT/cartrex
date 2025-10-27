@@ -1,14 +1,83 @@
+const mongoose = require('mongoose');
 const Space = require('../../models/Space');
+const Truck = require('../../models/Truck');
 
+
+// exports.getAllSpaces = async (req, res) => {
+//   try {
+//     const spaces = await Space.find({ deletstatus: 0 })
+//       // 🟢 Populate carrier details
+//       //.populate('carrierId','userId companyName noOfTrucks')
+//        .populate({
+//         path: 'carrierId',
+//         select: 'userId companyName noOfTrucks', 
+//         populate: {
+//           path: 'userId',
+//           select: 'firstName lastName ', 
+//         },
+//       })
+//        .populate( 'truckId', 'carrierId nickname truckType registrationNumber location')
+//         .populate('routeId','origin.state destination.state');
+//     res.status(200).json({
+//       sucess: "true",
+//       message: "All Spaces Fetched Sucessfully",
+//       data: spaces,
+//     });
+//   } catch (error) {
+//     console.error("Error fetching spaces:", error);
+//     res.status(500).json({
+//       message: "Error fetching spaces",
+//       error: error.message,
+//     });
+//   }
+// };
 
 exports.getAllSpaces = async (req, res) => {
   try {
-    const spaces = await Space.find({ deletstatus: 0 });
-    res.status(200).json(spaces);
+    let spaces = await Space.find({ deletstatus: 0 })
+       .populate({
+        path: 'carrierId',
+        select: 'userId companyName ', 
+        populate: {
+          path: 'userId',
+          select: 'firstName lastName ', 
+        },
+      })
+    .populate('truckId',' carrierId nickname truckType registrationNumber rating location')
+    .populate('routeId')
+     
+    .lean(); 
+    const carrierIds = [...new Set(spaces.map(s => s.carrierId?._id?.toString()).filter(Boolean))];
+
+    const truckCounts = await Truck.aggregate([
+      { $match: { carrierId: { $in: carrierIds.map(id => new mongoose.Types.ObjectId(id)) }, deletstatus: 0 } },
+      { $group: { _id: "$carrierId", totalTrucks: { $sum: 1 } } },
+    ]);
+
+    const truckCountMap = {};
+    truckCounts.forEach(tc => {
+      truckCountMap[tc._id.toString()] = tc.totalTrucks;
+    });
+    spaces = spaces.map(space => {
+      if (space.carrierId && space.carrierId._id) {
+        space.carrierId.noOfTrucks = truckCountMap[space.carrierId._id.toString()] || 0;
+      }
+      return space;
+    });
+    res.status(200).json({
+      sucess: "true",
+      message: "All Spaces Fetched Sucessfully",
+      data: spaces,
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching spaces', error });
+    console.error("Error fetching spaces:", error);
+    res.status(500).json({
+      message: "Error fetching spaces",
+      error: error.message,
+    });
   }
 };
+
 
 exports.updateSpaceStatus = async (req, res) => {
   try {

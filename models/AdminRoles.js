@@ -29,7 +29,7 @@ const adminRoleSchema = new mongoose.Schema({
   roleType: {
     type: String,
     required: true,
-    enum: ['super_admin', 'admin', 'manager', 'data_entry', 'accounts', 'moderator', 'support', 'operations'],
+    enum: ['super_admin', 'admin', 'manager', 'data_entry', 'accounts', 'moderator', 'support', 'operations','carrier','shipper'],
     unique: true
   },
   description: {
