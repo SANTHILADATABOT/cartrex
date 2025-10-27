@@ -5,6 +5,7 @@ const bookingController = require('../../controllers/admin/bookingListController
 // ✅ GET all bookings
 router.get('/getallbookings', bookingController.getallbookings);
 
+router.get('/getbookingbyId/:bookingId', bookingController.getbookingbyId);
 // ✅ UPDATE booking
 router.put('/updatebooking/:bookingId', bookingController.updatebooking);
 

@@ -30,6 +30,49 @@ exports.getallroutes = async (req, res) => {
   }
 };
 
+
+exports.getroutebyId = async (req, res) => {
+  try {
+    const { routeId } = req.params;
+
+    const route = await Route.findOne({ _id: routeId, deletstatus: 0 })
+      .populate({
+        path: 'carrierId',
+        select: 'companyName userId',
+        populate: {
+          path: 'userId',
+          select: 'firstName lastName email'
+        }
+      })
+      .populate('truckId', 'nickname registrationNumber truckType')
+      .populate('createdBy', 'firstName lastName email')
+      .populate('updatedBy', 'firstName lastName email')
+      .lean();
+
+    if (!route) {
+      return res.status(404).json({
+        success: false,
+        message: "Route not found or deleted"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Route fetched successfully",
+      data: route
+    });
+
+  } catch (error) {
+    console.error("Error fetching route by ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching route details",
+      error: error.message
+    });
+  }
+};
+
+
 // UPDATE route 
 exports.updateroute = async (req, res) => {
   try {
