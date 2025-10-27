@@ -103,7 +103,7 @@ exports.updatecarrier = async (req, res) => {
     carrierFields.forEach(f => { if (updateData[f] !== undefined) carrier[f] = updateData[f]; });
     carrier.updatedAt = new Date();
     carrier.updatedBy = req.user?._id || null;
-    await user.save();
+    await carrier.save();
     
     res.status(200).json({
       success: true,
@@ -234,60 +234,6 @@ exports.deletecarrier = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
-
-//Get Carrier by id 
-
-exports.getcarrierbyid = async (req, res) => {
-  try {
-    const { userid } = req.params;
-
-    // 1️⃣ Fetch the user details
-    const user = await User.findOne({
-      _id: userid,
-      deletstatus: 0,
-      role: "carrier",
-    }).select("firstName lastName email phone companyName totalBookings isActive");
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "Carrier user not found or deleted",
-      });
-    }
-
-    // 2️⃣ Fetch the carrier details linked to this user
-    const carrier = await Carrier.findOne({
-      userId: userid,
-      deletstatus: 0,
-    })
-      .select("companyName noOfBookings status");
-
-    // 3️⃣ Prepare response
-    const responseData = {
-      firstName: user.firstName || "",
-      lastName: user.lastName || "",
-      email: user.email || "",
-      phone: user.phone || "",
-      companyName: carrier?.companyName || "",
-      totalBookings: carrier?.totalBookings || 0,
-      status: user.isActive ? "Active" : "Inactive",
-    };
-
-    // 4️⃣ Send response
-    res.status(200).json({
-      success: true,
-      data: responseData,
-    });
-
-  } catch (error) {
-    console.error("Error fetching carrier by ID:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
-
 
 
 

@@ -41,6 +41,14 @@ exports.updatetruck = async (req, res) => {
       return res.status(404).json({ success: false, message: "Truck not found or deleted" });
     }
 
+    if (updateData.location) {
+      const newLoc = updateData.location;
+
+      if (newLoc.city !== undefined) truck.location.city = newLoc.city;
+      if (newLoc.state !== undefined) truck.location.state = newLoc.state;
+      delete updateData.location;
+    }
+
     Object.keys(updateData).forEach(f => {
       if (updateData[f] !== undefined) truck[f] = updateData[f];
     });
@@ -110,7 +118,14 @@ exports.gettruckbyId = async (req, res) => {
     const { truckId } = req.params;
 
     const truck = await Truck.findOne({ _id: truckId, deletstatus: 0 })
-      .populate("carrierId", "companyName address city state zipCode country status")
+   .populate({
+        path: "carrierId",
+        select: "companyName address city state zipCode country status userId",
+        populate: {
+          path: "userId",
+          select: "firstName lastName email"
+        }
+      })
       .populate("createdBy", "firstName lastName email")
       .populate("updatedBy", "firstName lastName email");
 
@@ -121,10 +136,16 @@ exports.gettruckbyId = async (req, res) => {
       });
     }
 
+    const owner = truck?.carrierId?.userId;
+    const ownerName = owner ? `${owner.firstName} ${owner.lastName}` : null;
+
     res.status(200).json({
       success: true,
       message: "Truck details fetched successfully",
-      data: truck,
+      data: {
+        ...truck.toObject(),
+        ownerName,
+      },
     });
 
   } catch (error) {

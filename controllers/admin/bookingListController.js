@@ -33,6 +33,55 @@ exports.getallbookings = async (req, res) => {
   }
 };
 
+// ✅ GET Booking by ID
+exports.getbookingbyId = async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+    const booking = await Booking.findById(bookingId)
+      .populate({
+        path: 'shipperId',
+        select: 'name email phone role',
+      })
+      .populate({
+        path: 'carrierId',
+        select: 'name email phone role companyName',
+      })
+      .populate({
+        path: 'truckId',
+        select: 'nickname registrationNumber truckType capacity status',
+      })
+      .populate({
+        path: 'spaceId',
+        populate: [
+          { path: 'carrierId', select: 'companyName email phone' },
+          { path: 'truckId', select: 'nickname registrationNumber' },
+
+        ],
+      });
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: 'Booking not found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Booking details fetched successfully',
+      data: booking,
+    });
+  } catch (error) {
+    console.error('Error fetching booking by ID:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while fetching booking details',
+      error: error.message,
+    });
+  }
+};
+
+
 
 // ✅ UPDATE booking
 exports.updatebooking = async (req, res) => {

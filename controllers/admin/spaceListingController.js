@@ -79,6 +79,49 @@ exports.getAllSpaces = async (req, res) => {
 };
 
 
+exports.getspacebyId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const space = await Space.findById(id)
+      .populate({
+        path: 'carrierId',
+        select: 'userId companyName noOfTrucks',
+        populate: {
+          path: 'userId',
+          select: 'firstName lastName email'
+        }
+      })
+      .populate('truckId', 'carrierId nickname truckType registrationNumber location status')
+      .populate('routeId')
+      .populate('createdBy', 'firstName lastName email') 
+      .populate('updatedBy', 'firstName lastName email')
+      .lean();
+
+    if (!space) {
+      return res.status(404).json({
+        success: false,
+        message: "Space not found"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Space details fetched successfully",
+      data: space
+    });
+
+  } catch (error) {
+    console.error("Error fetching space by ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching space details",
+      error: error.message
+    });
+  }
+};
+
+
+
 exports.updateSpaceStatus = async (req, res) => {
   try {
     const { id } = req.params;

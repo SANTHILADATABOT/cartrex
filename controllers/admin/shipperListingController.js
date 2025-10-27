@@ -41,7 +41,7 @@ exports.updateshipper = async (req, res) => {
     const { userId } = req.params;
     const updateData = req.body;
 
-
+console.log("updateData",updateData );
     const user = await User.findOne({ _id: userId, deletstatus: 0 });
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found or deleted" });
