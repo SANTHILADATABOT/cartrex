@@ -3,6 +3,7 @@ const Booking = require('../models/Booking');
 const Space = require('../models/Space');
 const Shipper = require('../models/Shipper');
 const Carrier = require('../models/Carrier');
+const User = require('../models/User')
 const { v4: uuidv4 } = require('uuid');
 
 exports.createBooking = async (req, res) => {
@@ -101,37 +102,90 @@ exports.getBookings = async (req, res) => {
   }
 };
 
+// exports.getBookingById = async (req, res) => {
+//   try {
+//     const booking = await Booking.findById(req.params.id)
+//       .populate('shipperId')
+//       .populate('carrierId')
+//       .populate('truckId')
+//       .populate('spaceId');
+
+//     if (!booking) {
+//       return res.status(404).json({ success: false, message: 'Booking not found' });
+//     }
+
+//     res.status(200).json({
+//       success: true,
+//       data: booking
+//     });
+//   } catch (error) {
+//     console.error('Get booking error:', error);
+//     res.status(500).json({ success: false, message: 'Server error' });
+//   }
+// };
+
+
+
 exports.getBookingById = async (req, res) => {
   try {
-    const booking = await Booking.findById(req.params.id)
-      .populate('shipperId')
-      .populate('carrierId')
-      .populate('truckId')
-      .populate('spaceId');
+    const { id } = req.params;
+
+    // Find the booking and populate basic references
+    const booking = await Booking.findOne({ _id: id })
+      .populate("truckId")
+      .populate("spaceId")
+      .populate("createdBy", "firstName lastName email")
+      .populate("updatedBy", "firstName lastName email");
 
     if (!booking) {
-      return res.status(404).json({ success: false, message: 'Booking not found' });
+      return res.status(404).json({
+        success: false,
+        message: "Booking not found",
+      });
     }
+
+    // Fetch Shipper and Carrier details (linked to User)
+    let shipperDetails = null;
+    let carrierDetails = null;
+
+    if (booking.shipperId) {
+      shipperDetails = await Shipper.findById(booking.shipperId)
+        .populate("userId", "firstName lastName email phone role")
+        .lean();
+    }
+
+    if (booking.carrierId) {
+      carrierDetails = await Carrier.findById(booking.carrierId)
+        .populate("userId", "firstName lastName email phone role")
+        .lean();
+    }
+
+    // Construct response object with names & emails
+    const bookingWithExtras = {
+      ...booking.toObject(),
+      shipperName: shipperDetails?.userId
+        ? `${shipperDetails.userId.firstName} ${shipperDetails.userId.lastName || ""}`.trim()
+        : null,
+      shipperEmail: shipperDetails?.userId?.email || null,
+      carrierName: carrierDetails?.userId
+        ? `${carrierDetails.userId.firstName} ${carrierDetails.userId.lastName || ""}`.trim()
+        : null,
+      carrierEmail: carrierDetails?.userId?.email || null,
+    };
 
     res.status(200).json({
       success: true,
-      data: booking
+      message: "Booking details fetched successfully",
+      data: bookingWithExtras,
     });
   } catch (error) {
-    console.error('Get booking error:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error("Error fetching booking by ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
-
-
-
-
-
-
-
-
-
-
 
 
 
