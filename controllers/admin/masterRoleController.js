@@ -158,11 +158,11 @@ console.log("role in update role", req.body)
 exports.deleteRole = async (req, res) => {
   try {
     const { roleid } = req.params;
-console.log('roleid',roleid);
+   console.log('roleid',roleid);
     const role = await AdminRole.findById(roleid);
     if (!role) return res.status(404).json({ success: false, message: 'Role not found' });
 
-    role.isActive = false;
+    role.isActive = "inactive";
     role.audit.deletstatus = 1;
     role.audit.deletedAt = new Date();
     // role.audit.deletedBy = req.user._id;
