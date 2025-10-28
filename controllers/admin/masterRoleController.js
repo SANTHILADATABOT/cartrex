@@ -81,7 +81,11 @@ exports.addRole = async (req, res) => {
     console.log("req.body in addRole:", req.body);
 
     // Check if role type already exists
-    const existingRole = await AdminRole.findOne({ roleType: roll_type });
+    const existingRole = await AdminRole.findOne({
+      roleType: roll_type,
+      isActive: "active",
+      "audit.deletstatus": 0
+    });
     if (existingRole) {
       return res.status(400).json({
         success: false,
