@@ -178,3 +178,43 @@ exports.deleteRole = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+exports.updateStatusRole = async (req, res) => {
+  try {
+    const { roleid } = req.params;
+    const { status } = req.body; 
+    console.log("roleid",roleid)
+    if (!["active", "inactive", "under_maintenance"].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid status. Allowed values: active, inactive, under_maintenance",
+      });
+    }
+
+const roles = await AdminRole.findOne({ _id: roleid });
+      
+console.log("roles found",roles)
+    if (!roles) {
+      return res.status(404).json({
+        success: false,
+        message: "Role not found or deleted",
+      });
+    }
+    roles.isActive = status;
+    roles.updatedAt = new Date();
+    roles.updatedBy = req.user?._id || null;
+    await roles.save();
+
+    res.status(200).json({
+      success: true,
+      message: `roles status updated to ${status}`,
+      data: roles,
+    });
+
+  } catch (error) {
+    console.error("Error updating roles status:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
