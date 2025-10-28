@@ -6,7 +6,16 @@ const Truck = require('../../models/Truck');
 exports.getalltrucks = async (req, res) => {
   try {
     const trucks = await Truck.find({ deletstatus: 0 })
-      .populate('carrierId', 'companyName');
+      .populate({
+        path: "carrierId",
+        select: "companyName address city state zipCode country status userId",
+        populate: {
+          path: "userId",
+          select: "firstName lastName email"
+        }
+      })
+      .populate("createdBy", "firstName lastName email")
+      .populate("updatedBy", "firstName lastName email");
 
     if (!trucks.length) {
       return res.status(200).json({
@@ -15,11 +24,23 @@ exports.getalltrucks = async (req, res) => {
         data: []
       });
     }
+    // ✅ Add ownerName for each truck
+    const formattedTrucks = trucks.map(truck => {
+      const owner = truck?.carrierId?.userId;
+      const ownerName = owner
+        ? `${owner?.firstName || ""} ${owner?.lastName || ""}`.trim()
+        : null;
 
+      // Convert mongoose doc to plain object so we can add fields
+      const truckObj = truck.toObject();
+      truckObj.ownerName = ownerName;
+
+      return truckObj;
+    });
     return res.status(200).json({
       success: true,
       message: "Trucks fetched successfully",
-      data: trucks
+      data: formattedTrucks
     });
 
   } catch (error) {
@@ -115,16 +136,39 @@ exports.updatetruck = async (req, res) => {
       return res.status(404).json({ success: false, message: "Truck not found or deleted" });
     }
 
-    if (updateData.location) {
-      const newLoc = updateData.location;
+    // ✅ If location is passed as a string, update only the state field
+    if (updateData.location && typeof updateData.location === "string") {
+      const newState = updateData.location;
+      console.log("Updating state inside location =>", newState);
 
-      if (newLoc.city !== undefined) truck.location.city = newLoc.city;
-      if (newLoc.state !== undefined) truck.location.state = newLoc.state;
-      delete updateData.location;
+      // ensure location object exists
+      if (!truck.location) {
+        truck.location = {
+          city: "",
+          state: "",
+          coordinates: {
+            type: "Point",
+            coordinates: [0, 0]
+          }
+        };
+      }
+
+      truck.location.state = newState;
     }
 
+    // ✅ If location is passed as an object, update its nested fields
+    else if (updateData.location && typeof updateData.location === "object") {
+      const newLoc = updateData.location;
+      if (newLoc.city !== undefined) truck.location.city = newLoc.city;
+      if (newLoc.state !== undefined) truck.location.state = newLoc.state;
+      if (newLoc.coordinates !== undefined) truck.location.coordinates = newLoc.coordinates;
+    }
+
+    // ✅ Update other fields normally
     Object.keys(updateData).forEach(f => {
-      if (updateData[f] !== undefined) truck[f] = updateData[f];
+      if (f !== "location" && updateData[f] !== undefined) {
+        truck[f] = updateData[f];
+      }
     });
 
     truck.updatedAt = new Date();
@@ -213,7 +257,7 @@ exports.gettruckbyId = async (req, res) => {
     }
 
     const owner = truck?.carrierId?.userId;
-    const ownerName = owner ? `${owner.firstName} ${owner.lastName}` : null;
+    const ownerName = owner ? `${owner?.firstName} ${owner?.lastName}` : null;
 
     res.status(200).json({
       success: true,
