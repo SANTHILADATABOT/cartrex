@@ -56,13 +56,31 @@ async function insertAdminRoles() {
 
     // Roles Data
     const rolesData = [
+       {
+        roleName: 'SuperAdmin',
+        roleType: 'super_admin',
+        description: 'Has full access to all system modules and settings.',
+        permissions: basePermissions,
+        isDefault: true,
+        isActive: "active",
+        audit: createAudit()
+      },
+      {
+        roleName: 'Manager',
+        roleType: 'manager',
+        description: 'Has full access to all system modules and settings.',
+        permissions: basePermissions,
+        isDefault: true,
+        isActive: "active",
+        audit: createAudit()
+      },
       {
         roleName: 'Carrier',
         roleType: 'carrier',
         description: 'Has full access to all system modules and settings.',
         permissions: basePermissions,
         isDefault: true,
-        isActive: true,
+        isActive: "active",
         audit: createAudit()
       },
       {
@@ -74,7 +92,7 @@ async function insertAdminRoles() {
           systemSettings: { view: true, edit: false } // Restrict some permissions
         },
         isDefault: false,
-        isActive: true,
+        isActive: "active",
         audit: createAudit()
       },
     ];

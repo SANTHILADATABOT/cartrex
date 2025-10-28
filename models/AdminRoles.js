@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const auditSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false  },
   updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   deletedAt: { type: Date },
@@ -34,7 +34,7 @@ const adminRoleSchema = new mongoose.Schema({
   },
   description: {
     type: String,
-    required: true
+    required: false
   },
   permissions: {
     dashboard: { view: { type: Boolean, default: false }, export: { type: Boolean, default: false } },
@@ -56,7 +56,9 @@ const adminRoleSchema = new mongoose.Schema({
     systemSettings: { view: { type: Boolean, default: false }, edit: { type: Boolean, default: false } }
   },
   isDefault: { type: Boolean, default: false },
-  isActive: { type: Boolean, default: true },
+ isActive: {
+  type: String,enum: ["active", "inactive"],default: "active"
+},
   audit: { type: auditSchema, required: true } // embedding audit schema
 }, {
   timestamps: true
