@@ -13,4 +13,6 @@ router.put('/updateroute/:routeId', routeController.updateroute);
 //delete
 router.delete('/deleteroute/:routeId', routeController.deleteroute);
 
+router.put('/updateStatusRoute/:routeId',routeController.updateStatusRoute);
+
 module.exports = router;

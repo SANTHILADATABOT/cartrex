@@ -91,7 +91,7 @@ exports.getspacebyId = async (req, res) => {
           select: 'firstName lastName email'
         }
       })
-      .populate('truckId', 'carrierId nickname truckType registrationNumber location status')
+      .populate('truckId', 'carrierId nickname truckType registrationNumber location rating status')
       .populate('routeId')
       .populate('createdBy', 'firstName lastName email') 
       .populate('updatedBy', 'firstName lastName email')
@@ -103,7 +103,18 @@ exports.getspacebyId = async (req, res) => {
         message: "Space not found"
       });
     }
+   // Add truck count logic (like getAllSpaces)
+    if (space.carrierId && space.carrierId._id) {
+      const carrierId = space.carrierId._id;
 
+      const truckCount = await Truck.countDocuments({
+        carrierId: carrierId,
+        deletstatus: 0
+      });
+
+      // Add count to carrier details
+      space.carrierId.noOfTrucks = truckCount;
+    }
     res.status(200).json({
       success: true,
       message: "Space details fetched successfully",
@@ -154,6 +165,43 @@ exports.updateSpaceStatus = async (req, res) => {
   } catch (error) {
     console.error('Update error:', error);
     res.status(500).json({
+      message: 'Error updating space',
+      error: error.message,
+    });
+  }
+};
+exports.updatespace = async (req, res) => {
+  try {
+    const { spaceid } = req.params;
+    const updateData = req.body;
+    if (updateData.status && !['active', 'booked', 'expired'].includes(updateData.status)) {
+      return res.status(400).json({ message: 'Invalid status value' });
+    }
+    const auditFields = {
+      ...updateData, 
+      updatedAt: new Date(),
+      updatedBy: updateData?.updatedBy,
+      updated_ipAddress: req.ip || req.connection.remoteAddress,
+      userAgent: req.get('User-Agent'),
+    };
+
+    const updatedSpace = await Space.findByIdAndUpdate(spaceid, auditFields, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedSpace)
+      return res.status(404).json({ message: 'Space not found' });
+
+    res.status(200).json({
+      success: true,
+      message: 'Space updated successfully',
+      updatedSpace,
+    });
+  } catch (error) {
+    console.error('Update error:', error);
+    res.status(500).json({
+      success: false,
       message: 'Error updating space',
       error: error.message,
     });
