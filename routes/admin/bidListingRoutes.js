@@ -10,6 +10,8 @@ router.get('/getbidbyId/:bidId', bidController.getbidbyId);
 // UPDATE bid
 router.put('/updatebid/:bidId', bidController.updatebid);
 
+router.put('/updatebidstatusbyId/:bidId', bidController.updatebidstatusbyId);
+
 // DELETE bid
 router.delete('/deletebid/:bidId', bidController.deletebid);
 
