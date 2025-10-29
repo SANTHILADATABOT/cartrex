@@ -12,5 +12,6 @@ router.put('/updatebooking/:bookingId', bookingController.updatebooking);
 // ✅ DELETE booking (soft delete)
 router.delete('/deletebooking/:bookingId', bookingController.deletebooking);
 
+router.put('/updateStatus/:bookingId', bookingController.updateStatus);
 
 module.exports = router;

@@ -53,6 +53,7 @@ exports.getallbookings = async (req, res) => {
   }
 };
 
+
 exports.getbookingbyId = async (req, res) => {
   try {
     const { bookingId } = req.params;
@@ -91,6 +92,7 @@ exports.getbookingbyId = async (req, res) => {
   }
 };
 
+
 // ✅ SOFT DELETE booking (set deletstatus = 1)
 exports.deletebooking = async (req, res) => {
   try {
@@ -123,6 +125,7 @@ exports.deletebooking = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
 
 exports.updatebookingold = async (req, res) => {
   try {
@@ -210,6 +213,7 @@ exports.updatebookingold = async (req, res) => {
   }
 };
 
+
 exports.updatebooking = async (req, res) => {
   try {
     const { bookingId } = req.params;
@@ -272,3 +276,51 @@ exports.updatebooking = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 };
+
+
+exports.updateStatus = async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+    const updateData = req.body;
+
+    // Allowed status values
+    const allowedStatuses = ["pending", "confirmed", "in_progress", "completed", "cancelled"];
+
+    // Validate status
+    if (updateData.status && !allowedStatuses.includes(updateData.status)) {
+      return res.status(400).json({ message: "Invalid status value" });
+    }
+
+    // Prepare update fields with audit details
+    const auditFields = {
+      ...updateData,
+      updatedAt: new Date(),
+      updatedBy: updateData.updatedBy,
+      updated_ipAddress: req.ip || req.connection.remoteAddress,
+      userAgent: req.get("User-Agent"),
+    };
+
+    // Update booking document
+    const updatedBooking = await Booking.findByIdAndUpdate(bookingId, auditFields, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedBooking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    res.status(200).json({
+      message: "Booking status updated successfully",
+      updatedBooking,
+    });
+  } catch (error) {
+    console.error("Booking status update error:", error);
+    res.status(500).json({
+      message: "Error updating booking status",
+      error: error.message,
+    });
+  }
+};
+
+

@@ -102,35 +102,12 @@ exports.getBookings = async (req, res) => {
   }
 };
 
-// exports.getBookingById = async (req, res) => {
-//   try {
-//     const booking = await Booking.findById(req.params.id)
-//       .populate('shipperId')
-//       .populate('carrierId')
-//       .populate('truckId')
-//       .populate('spaceId');
-
-//     if (!booking) {
-//       return res.status(404).json({ success: false, message: 'Booking not found' });
-//     }
-
-//     res.status(200).json({
-//       success: true,
-//       data: booking
-//     });
-//   } catch (error) {
-//     console.error('Get booking error:', error);
-//     res.status(500).json({ success: false, message: 'Server error' });
-//   }
-// };
-
 
 
 exports.getBookingById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Find the booking and populate basic references
     const booking = await Booking.findOne({ _id: id })
       .populate("truckId")
       .populate("spaceId")
@@ -144,7 +121,7 @@ exports.getBookingById = async (req, res) => {
       });
     }
 
-    // Fetch Shipper and Carrier details (linked to User)
+    
     let shipperDetails = null;
     let carrierDetails = null;
 
@@ -160,7 +137,7 @@ exports.getBookingById = async (req, res) => {
         .lean();
     }
 
-    // Construct response object with names & emails
+ 
     const bookingWithExtras = {
       ...booking.toObject(),
       shipperName: shipperDetails?.userId
