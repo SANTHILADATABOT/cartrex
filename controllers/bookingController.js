@@ -123,18 +123,6 @@ exports.getBookingById = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
 exports.acceptBooking = async (req, res) => {
   try {
     const { carrierMessage, truckId, additionalFee, confirmPickupDate, estimatedDeliveryDate } = req.body;
