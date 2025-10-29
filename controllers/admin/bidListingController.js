@@ -41,8 +41,23 @@ exports.getbidbyId = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid bid ID" });
     }
     const bid = await Bid.findOne({ _id: bidId, deletstatus: 0 })
-      .populate('shipperId', 'companyName dba email')      // from Shipper collection
-      .populate('carrierId', 'companyName dba email')      // from Carrier collection
+       .populate({
+        path: 'shipperId',
+        select: 'companyName dba userId',
+        populate: {
+          path: 'userId',
+          select: 'firstName lastName email'
+        }
+      })
+      // 🟢 Populate Carrier + its User (if you want similar owner info)
+      .populate({
+        path: 'carrierId',
+        select: 'companyName dba userId',
+        populate: {
+          path: 'userId',
+          select: 'firstName lastName email'
+        }
+      })
       .populate('routeId', 'routeName origin destination') // from Route collection
       .populate('createdBy', 'firstName lastName email')   // from User
       .populate('updatedBy', 'firstName lastName email');
@@ -72,43 +87,67 @@ exports.getbidbyId = async (req, res) => {
 
 
 //  UPDATE bid
+// exports.updatebid = async (req, res) => {
+//   try {
+//     const { bidId } = req.params;
+//     const updateData = req.body;
+
+//     if (!mongoose.Types.ObjectId.isValid(bidId)) {
+//       return res.status(400).json({ success: false, message: "Invalid bid ID" });
+//     }
+
+//     const bid = await Bid.findOne({ _id: bidId, deletstatus: 0 });
+//     if (!bid) {
+//       return res.status(404).json({ success: false, message: "Bid not found or deleted" });
+//     }
+
+   
+//     Object.keys(updateData).forEach(f => {
+//       if (updateData[f] !== undefined) bid[f] = updateData[f];
+//     });
+
+//     bid.updatedAt = new Date();
+//     bid.updatedBy = req.user?._id || null;
+//     bid.ipAddress = req.ip || null;
+//     bid.userAgent = req.headers['user-agent'] || null;
+   
+    
+//     await bid.save();
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Bid updated successfully",
+//       data: bid
+//     });
+
+//   } catch (error) {
+//     console.error("Error updating bid:", error);
+//     res.status(500).json({ success: false, message: "Server error" });
+//   }
+// };
+
 exports.updatebid = async (req, res) => {
   try {
     const { bidId } = req.params;
     const updateData = req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(bidId)) {
-      return res.status(400).json({ success: false, message: "Invalid bid ID" });
+    if (!updateData || Object.keys(updateData).length === 0) {
+      return res.status(400).json({ success: false, message: "No data provided for update" });
     }
 
-    const bid = await Bid.findOne({ _id: bidId, deletstatus: 0 });
-    if (!bid) {
-      return res.status(404).json({ success: false, message: "Bid not found or deleted" });
+    const updatedBid = await Bid.findByIdAndUpdate(bidId, updateData, { new: true });
+
+    if (!updatedBid) {
+      return res.status(404).json({ success: false, message: "Bid not found" });
     }
 
-   
-    Object.keys(updateData).forEach(f => {
-      if (updateData[f] !== undefined) bid[f] = updateData[f];
-    });
-
-    bid.updatedAt = new Date();
-    bid.updatedBy = req.user?._id || null;
-    bid.ipAddress = req.ip || null;
-    bid.userAgent = req.headers['user-agent'] || null;
-
-    await bid.save();
-
-    res.status(200).json({
-      success: true,
-      message: "Bid updated successfully",
-      data: bid
-    });
-
+    res.status(200).json({ success: true, data: updatedBid });
   } catch (error) {
     console.error("Error updating bid:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    res.status(500).json({ success: false, message: "Error updating bid" });
   }
 };
+
 
 
 // DELETE bid 
