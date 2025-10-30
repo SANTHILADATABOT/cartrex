@@ -244,4 +244,3 @@ exports.deletecarrier = async (req, res) => {
 
 
 
-
