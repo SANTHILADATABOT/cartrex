@@ -94,13 +94,11 @@ exports.addcarrier = async (req, res) => {
 
 exports.getallcarriers = async (req, res) => {
   try {
-    const {isActive} = req.query;
-    
+    const {status} = req.query;
     const carrierUsers = await User.find({ 
       role: "carrier", 
     deletstatus: 0 
     });
-
     if (!carrierUsers.length) {
       return res.status(200).json({
         success: true,
@@ -108,14 +106,13 @@ exports.getallcarriers = async (req, res) => {
         data: [],
       });
     }
-
     const carrierUserIds = carrierUsers.map(user => user._id.toString());
     const filter = {userId: { $in: carrierUserIds },deletstatus: 0};
-      if (isActive) {
-        if (isActive === "all") {
+      if (status) {
+        if (status === "all") {
           filter.status = { $in: ["active", "inactive"] }; // both
         } else {
-          filter.status = isActive;
+          filter.status = status;
         }
     }
     const matchedCarriers = await Carrier.find(filter)

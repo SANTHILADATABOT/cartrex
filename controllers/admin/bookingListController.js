@@ -7,7 +7,23 @@ const User = require("../../models/User");
 
 exports.getallbookings = async (req, res) => {
   try {
-    const bookings = await Booking.find({ deletstatus: 0 })
+    const {status,trucker,carrier,shipper} = req.query;
+     const filter = {deletstatus: 0};
+      if (status) {
+        if (status === "all") {
+          filter.status = { $in: ['confirmed','pending','in_progress','cancelled','completed'] }; // both
+        } else {
+          filter.status = status;
+        }
+      }
+      if (carrier && carrier !== "all") {
+        filter.carrierId = carrier;
+      }
+      if (shipper && shipper !== "all") {
+        filter.shipperId = shipper;
+      }
+      console.log('filter=>',filter)
+    const bookings = await Booking.find(filter)
       .populate({
         path: "carrierId",
         populate: {
@@ -243,7 +259,9 @@ exports.updatebooking = async (req, res) => {
     if (updateData.status) {
       booking.status = updateData.status;
     }
-
+    booking.carrierId = updateData.carrierId;
+    booking.shipperId = updateData.shipperId;
+    
     // ✅ Optional: track who updated and when
     booking.updatedAt = new Date();
     if (req.user?._id) booking.updatedBy = req.user._id;

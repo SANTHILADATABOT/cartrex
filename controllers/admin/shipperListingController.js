@@ -5,7 +5,7 @@ const Shipper = require('../../models/Shipper');
 // ✅ GET all shippers (active only)
 exports.getallshippers = async (req, res) => {
   try {
-
+    const {status} = req.query;
     const shipperUsers = await User.find({
       role: "shipper",
       deletstatus: 0
@@ -16,7 +16,15 @@ exports.getallshippers = async (req, res) => {
     }
 
     const userIds = shipperUsers.map(u => u._id);
-    const shippers = await Shipper.find({ userId: { $in: userIds }, deletstatus: 0 });
+    const filter = { userId: { $in: userIds }, deletstatus: 0 };
+      if (status) {
+        if (status === "all") {
+          filter.status = { $in: ["active", "inactive"] }; // both
+        } else {
+          filter.status = status;
+        }
+    }
+    const shippers = await Shipper.find(filter);
 
     const result = shipperUsers.map(user => {
       const shipper = shippers.find(s => s.userId.toString() === user._id.toString());
