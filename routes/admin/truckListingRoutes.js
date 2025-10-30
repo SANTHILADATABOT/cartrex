@@ -16,4 +16,6 @@ router.get('/gettruckbyId/:truckId', truckController.gettruckbyId);
 // Soft delete truck
 router.delete('/deletetruck/:truckId', truckController.deletetruck);
 
+router.post('/createTruck', truckController.createTruck);
+
 module.exports = router;

@@ -1,5 +1,5 @@
 const Truck = require('../../models/Truck');
-
+const mongoose = require('mongoose');
 
 
 // ✅ GET all trucks (only active ones)
@@ -15,7 +15,9 @@ exports.getalltrucks = async (req, res) => {
         }
       })
       .populate("createdBy", "firstName lastName email")
-      .populate("updatedBy", "firstName lastName email");
+      .populate("updatedBy", "firstName lastName email")
+      .populate("truckType", "subcategoryName");
+
 
     if (!trucks.length) {
       return res.status(200).json({
@@ -299,5 +301,77 @@ exports.deletetruck = async (req, res) => {
   } catch (error) {
     console.error("Error deleting truck:", error);
     res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+exports.createTruck = async (req, res) => {
+  try {
+    const {
+      nickname,
+      registrationNumber,
+      truckType,
+      hasWinch,
+      capacity,
+      mcDotNumber,
+      vinNumber,
+      insurance,
+      insuranceExpiry,
+      status,
+      location,
+      owner,
+      carrierId,
+    } = req.body;
+console.log("req.body in truck ",req.body)
+    // Convert "yes"/"no" → Boolean
+    const hasWinchBool = hasWinch === 'yes';
+
+    // Convert insuranceExpiry "30/10/2025" → Date (yyyy-mm-dd)
+    const [day, month, year] = insuranceExpiry.split('/');
+    const insuranceExpiryDate = new Date(`${year}-${month}-${day}`);
+
+    // Handle location split
+    let city = '', state = '';
+    if (location) {
+      const parts = location.split(',');
+      city = parts[0]?.trim() || '';
+      state = parts[1]?.trim() || '';
+    }
+
+    // Create Truck document
+    const newTruck = new Truck({
+      carrierId: owner, // from token/session ideally
+      nickname,
+      registrationNumber,
+      truckType,
+      hasWinch: hasWinchBool,
+      capacity: Number(capacity),
+      mcDotNumber,
+      vinNumber,
+      insurance,
+      insuranceExpiry: insuranceExpiryDate,
+      status,
+      location: {
+        city : req.body?.location,
+        state,
+      },
+      createdBy: req.user?._id || '68e73aebda9fdad99d4d53ea', // if available from auth middleware
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent']
+    });
+
+    await newTruck.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Truck created successfully',
+      data: newTruck
+    });
+  } catch (error) {
+    console.error('Error creating truck:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal Server Error',
+      error: error.message
+    });
   }
 };
