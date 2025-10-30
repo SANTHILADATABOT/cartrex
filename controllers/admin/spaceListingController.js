@@ -170,6 +170,8 @@ exports.updateSpaceStatus = async (req, res) => {
     });
   }
 };
+
+
 exports.updatespace = async (req, res) => {
   try {
     const { spaceid } = req.params;

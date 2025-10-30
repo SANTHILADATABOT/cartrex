@@ -2,9 +2,10 @@ const mongoose = require('mongoose');
 
 const bookingSchema = new mongoose.Schema({
   spaceId: { type: mongoose.Schema.Types.ObjectId, ref: 'Space', required: true },
-  shipperId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  carrierId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  shipperId: { type: mongoose.Schema.Types.ObjectId, ref: 'Shipper', required: true },
+  carrierId: { type: mongoose.Schema.Types.ObjectId, ref: 'Carrier', required: true },
   truckId: { type: mongoose.Schema.Types.ObjectId, ref: 'Truck', required: true },
+  
 
   vehicleDetails: {
     licenseNumber: { type: String, required: true, trim: true },
@@ -35,7 +36,7 @@ const bookingSchema = new mongoose.Schema({
 
   status: { 
     type: String, 
-    enum: ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled'], 
+    enum: ['confirmed','pending','in_progress','cancelled','completed'], 
     default: 'pending' 
   },
 
