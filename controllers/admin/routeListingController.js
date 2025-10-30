@@ -3,7 +3,22 @@ const Route = require('../../models/Route');
 // ✅ GET all routes (only active ones)
 exports.getallroutes = async (req, res) => {
   try {
-    const routes = await Route.find({ deletstatus: 0 })
+    const {status, owner } = req.query;
+    const filter = { deletstatus: 0 };
+    // ✅ Role filter
+    if (owner && owner !== "all") {
+      filter.carrierId = owner;
+    }
+
+    // ✅ Status filter
+    if (status) {
+      if (status === "all") {
+        filter.status = { $in: ["active", "inactive"] }; // both
+      } else {
+        filter.status = status;
+      }
+    }
+    const routes = await Route.find(filter)
       // .populate('carrierId', 'companyName')
        .populate({
         path: 'carrierId',
