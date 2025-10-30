@@ -8,9 +8,9 @@ const bidSchema = new mongoose.Schema({
   bidValue: { type: Number, required: true },
 
   vehicleDetails: {
-    licenseNumber: { type: String, required: true, trim: true },
-    brand: { type: String, required: true, trim: true },
-    vehicleType: { type: String, required: true, trim: true },
+    licenseNumber: { type: String, trim: true },
+    brand: { type: String, trim: true },
+    vehicleType: { type: String, trim: true },
     yearMade: { type: Number },
     features: [String], // Array of features
     condition: { type: String, enum: ['new', 'used', 'excellent', 'good', 'fair', 'poor'], default: 'good' },
@@ -25,17 +25,17 @@ const bidSchema = new mongoose.Schema({
   lotNumber: { type: String, trim: true },
 
   pickup: {
-    city: { type: String, required: true },
-    state: { type: String, required: true },
-    zipcode: { type: String, required: true },
-    pickupDate: { type: Date, required: true },
+    city: { type: String },
+    state: { type: String },
+    zipcode: { type: String },
+    pickupDate: { type: Date },
     pickupLocationType: { type: String, trim: true }
   },
 
   delivery: {
-    city: { type: String, required: true },
-    state: { type: String, required: true },
-    zipcode: { type: String, required: true }
+    city: { type: String },
+    state: { type: String },
+    zipcode: { type: String }
   },
 
   additionalComments: { type: String },
@@ -54,7 +54,7 @@ const bidSchema = new mongoose.Schema({
 
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
-   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     deletstatus: {
     type: Number,

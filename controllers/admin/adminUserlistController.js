@@ -38,7 +38,23 @@ exports.createadminuser = async (req, res) => {
 // GET ALL Admin Users 
 exports.getalladminusers = async (req, res) => {
   try {
-    const adminUsers = await AdminUser.find({ 'audit.deletstatus': 0 })
+    const {isActive, roleId } = req.query;
+    const filter = { 'audit.deletstatus': 0 };
+   // ✅ Role filter
+    if (roleId && roleId !== "all") {
+      filter.roleId = roleId;
+    }
+
+    // ✅ Status filter
+    if (isActive) {
+      if (isActive === "all") {
+        filter.isActive = { $in: ["active", "inactive"] }; // both
+      } else {
+        filter.isActive = isActive;
+      }
+    }
+
+    const adminUsers = await AdminUser.find(filter)
       .populate('roleId')
       .populate('personalInfo.firstName personalInfo.lastName')
       .populate('audit.createdBy', 'personalInfo.firstName personalInfo.lastName')

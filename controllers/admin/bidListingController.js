@@ -132,19 +132,79 @@ exports.updatebid = async (req, res) => {
     const updateData = req.body;
 
     if (!updateData || Object.keys(updateData).length === 0) {
-      return res.status(400).json({ success: false, message: "No data provided for update" });
+      return res.status(400).json({
+        success: false,
+        message: "No data provided for update",
+      });
     }
 
-    const updatedBid = await Bid.findByIdAndUpdate(bidId, updateData, { new: true });
+    const updatedBid = await Bid.findByIdAndUpdate(
+      bidId,
+      { $set: updateData },
+      { new: true, runValidators: false } // ensures schema validation
+    );
 
     if (!updatedBid) {
-      return res.status(404).json({ success: false, message: "Bid not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Bid not found" });
     }
 
-    res.status(200).json({ success: true, data: updatedBid });
+    return res
+      .status(200)
+      .json({ success: true, message: "Bid updated successfully", data: updatedBid });
   } catch (error) {
     console.error("Error updating bid:", error);
-    res.status(500).json({ success: false, message: "Error updating bid" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Error updating bid" });
+  }
+};
+
+exports.updatebidstatusbyId = async (req, res) => {
+  try {
+    const { bidId } = req.params;
+    const { status } = req.body;
+
+    // ✅ Validate allowed status values
+    const allowedStatuses = ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled'];
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid status. Allowed values: ${allowedStatuses.join(', ')}`
+      });
+    }
+    // ✅ Update only the status field
+    const updatedBid = await Bid.findByIdAndUpdate(
+      bidId,
+      {
+        $set: { 
+          status, 
+          updatedAt: new Date(),
+        }
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedBid) {
+      return res.status(404).json({
+        success: false,
+        message: "Bid not found or already deleted"
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Bid status updated to '${status}' successfully`,
+      data: updatedBid
+    });
+
+  } catch (error) {
+    console.error("Error updating bid status:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while updating bid status"
+    });
   }
 };
 

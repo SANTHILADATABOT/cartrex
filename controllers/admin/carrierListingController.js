@@ -2,40 +2,95 @@ const User = require('../../models/User');
 const Carrier = require('../../models/Carrier');
 const mongoose = require("mongoose");
 
-exports.addcarrier = async (req, res) => {
-  try{
-    const data = req.body;
-    console.log(' req.body=> ',data);
-    const UserData = new User({
-      email:data?.email,
-      firstName: data?.firstName,
-      lastName : data?.lastName,
-      phone : data?.phone,
-      roleId : data?.roleId,
-      isApproved : true,
-      isActive : true,
-      password : data?.phone,
-      audit: { ...data?.audit , deletstatus: 0 }
-    });
+// exports.addcarrier = async (req, res) => {
+//   try{
+//     const data = req.body;
+//     console.log('req.body=> in add carrier ',req.body);
+//     const UserData = new User({
+//       email:data?.email,
+//       firstName: data?.firstName,
+//       lastName : data?.lastName,
+//       phone : data?.phone,
+//       roleId : data?.roleId,
+//       isApproved : true,
+//       isActive : true,
+//       password : data?.phone,
+//       audit: { ...data?.audit , deletstatus: 0 }
+//     });
 
-    const saved = await UserData.save();
-    if(!saved){
-      return res.status(404).json({ success: false, message: "User not found or deleted" });
-    }
-    const carrierData = new Carrier({
-       userId:saved._id,
-       companyName:data?.companyName,
-       status:data?.status,
-    });
-    res.status(201).json({ success: true, data: adminUser });
-  }
-  catch(error){
-    console.error(err);
-    res.status(500).json({ success: false, message: err.message });
-  }
+//     const saved = await UserData.save();
+//     if(!saved){
+//       return res.status(404).json({ success: false, message: "User not found or deleted" });
+//     }
+//     const carrierData = new Carrier({
+//        userId:saved._id,
+//        companyName:data?.companyName,
+//        status:data?.status,
+//     });
+//     res.status(201).json({ success: true, data: adminUser });
+//   }
+//   catch(error){
+//     console.error(err);
+//     res.status(500).json({ success: false, message: err.message });
+//   }
 
-}
+// }
 //Get All Carrier from User and Carrier
+
+exports.addcarrier = async (req, res) => {
+  try {
+    const data = req.body;
+    console.log('req.body => in add carrier', data);
+
+    // 1️⃣ Create and save User
+    const userData = new User({
+      email: data?.email,
+      firstName: data?.firstName,
+      lastName: data?.lastName,
+      phone: data?.phone,
+      role: data?.roleId,
+      isApproved: true,
+      isActive: true,
+      password: data?.phone, // consider hashing before saving
+      audit: { ...data?.audit, deletstatus: 0 },
+    });
+
+    const savedUser = await userData.save();
+
+    if (!savedUser) {
+      return res.status(400).json({ success: false, message: 'Failed to create user.' });
+    }
+
+    // 2️⃣ Create and save Carrier
+    const carrierData = new Carrier({
+      userId: savedUser._id,
+      companyName: data?.companyName,
+      status: data?.status,
+      address:data?.Address,
+      zipCode:data?.zipcode
+    });
+
+    const savedCarrier = await carrierData.save();
+
+    // 3️⃣ Return success response
+    return res.status(201).json({
+      success: true,
+      message: 'Carrier and user created successfully.',
+      data: {
+        user: savedUser,
+        carrier: savedCarrier,
+      },
+    });
+
+  } catch (error) {
+    console.error('Error in addcarrier:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error.',
+      error: error.message,
+    });
+  }
+};
 
 exports.getallcarriers = async (req, res) => {
   try {
