@@ -16,7 +16,7 @@ exports.getRoles = async (req, res) => {
 exports.getRolesfordropdowns = async (req, res) => {
   try {
     const roles = await AdminRole.find({ 
-      isActive: true ,
+      isActive: "active" ,
       'audit.deletstatus': 0   // ✅ include deletstatus condition
     }).select('_id roleName roleType');
     res.status(200).json({ success: true, data: roles });
@@ -81,7 +81,11 @@ exports.addRole = async (req, res) => {
     console.log("req.body in addRole:", req.body);
 
     // Check if role type already exists
-    const existingRole = await AdminRole.findOne({ roleType: roll_type });
+    const existingRole = await AdminRole.findOne({
+      roleType: roll_type,
+      isActive: "active",
+      "audit.deletstatus": 0
+    });
     if (existingRole) {
       return res.status(400).json({
         success: false,
