@@ -5,7 +5,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
-
+const path = require("path");
 
 dotenv.config();
 const rateLimit = require('express-rate-limit');
@@ -179,7 +179,7 @@ setupWebSocketNamespaces();
 
 // Make io accessible to routes
 app.set('io', io);
-
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/admin/adminRoutes');
@@ -193,6 +193,7 @@ const routeListRoutes = require('./routes/admin/routeListingRoutes')
 const bidListRoutes = require('./routes/admin/bidListingRoutes');
 const adminUserlistRoutes = require('./routes/admin/adminUserlistRoutes');
 const masterRoleRoutes = require('./routes/admin/masterRoleRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 const webRoutes = require('./routes/web');
 // const mobileRoutes = require('./routes/mobile');
@@ -214,6 +215,8 @@ app.use('/routelisting', routeListRoutes);
 app.use('/bidlisting',bidListRoutes);
 app.use('/adminuserlist',adminUserlistRoutes);
 app.use('/masterRoleRoutes',masterRoleRoutes);
+
+app.use("/uploads", uploadRoutes);
 // Web application routes
 app.use('/api/web', webRoutes);
 
