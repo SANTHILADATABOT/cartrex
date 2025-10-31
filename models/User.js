@@ -25,7 +25,12 @@ const userSchema = new mongoose.Schema({
   firstName: { type: String, required: true, trim: true },
   lastName: { type: String, trim: true },
   phone: { type: String, required: true },
-  role: { type: String, enum: ['admin', 'carrier', 'shipper'], required: true },
+  // role: { type: String, enum: ['admin', 'carrier', 'shipper'], required: true },
+  role: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "AdminRole",
+  required: true
+},
   isApproved: { type: Boolean, default: false },
   isActive: { type: Boolean, default: true },
   mfaEnabled: { type: Boolean, default: false },
