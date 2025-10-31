@@ -96,7 +96,7 @@ exports.getallcarriers = async (req, res) => {
   try {
   
     const carrierUsers = await User.find({ 
-      role: "carrier", 
+      role: "68ff5689aa5d489915b8caa8", 
     deletstatus: 0 
     });
 

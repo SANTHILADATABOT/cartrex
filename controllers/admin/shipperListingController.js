@@ -7,7 +7,7 @@ exports.getallshippers = async (req, res) => {
   try {
 
     const shipperUsers = await User.find({
-      role: "shipper",
+      role: "68ff5689aa5d489915b8caaa",
       deletstatus: 0
     });
 
@@ -218,6 +218,71 @@ exports.getshipperbyId = async (req, res) => {
     res.status(500).json({
       success: false,
       message: error.message,
+    });
+  }
+};
+
+exports.createShipper = async (req, res) => {
+  try {
+    const data = req.body;
+    console.log("req.body => in add shipper", data);
+
+    // 1️⃣ Create and save User
+    const userData = new User({
+      email: data?.email,
+      firstName: data?.firstName,
+      lastName: data?.lastName,
+      phone: data?.phone,
+      role: data?.roleId, // explicitly set to 'shipper'
+      isApproved: true,
+      isActive: true,
+      password: data?.phone, // hash handled by pre-save hook
+      audit: { ...data?.audit, deletstatus: 0 },
+    });
+
+    const savedUser = await userData.save();
+    if (!savedUser) {
+      return res.status(400).json({
+        success: false,
+        message: "Failed to create user.",
+      });
+    }
+
+    // 2️⃣ Create and save Shipper
+    const shipperData = new Shipper({
+      userId: savedUser._id,
+      companyName: data?.companyName || "",
+      dba: data?.dba || "",
+      photo: data?.photo || "",
+      address: data?.address || "",
+      city: data?.city || "",
+      state: data?.state || "",
+      zipCode: data?.zipcode || "",
+      country: data?.country || "",
+      status: data?.status || "active",
+      createdBy: data?.audit?.createdBy || savedUser._id,
+      updatedBy: data?.audit?.updatedBy || savedUser._id,
+      ipAddress: data?.audit?.ipAddress || req.ip,
+      userAgent: data?.audit?.userAgent || req.headers["user-agent"],
+    });
+
+    const savedShipper = await shipperData.save();
+
+    // 3️⃣ Return success response
+    return res.status(201).json({
+      success: true,
+      message: "Shipper and user created successfully.",
+      data: {
+        user: savedUser,
+        shipper: savedShipper,
+      },
+    });
+  } catch (error) {
+    console.error("Error in addshipper:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error.",
+      error: error.message,
     });
   }
 };
