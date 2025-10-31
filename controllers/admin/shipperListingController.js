@@ -5,7 +5,7 @@ const Shipper = require('../../models/Shipper');
 // ✅ GET all shippers (active only)
 exports.getallshippers = async (req, res) => {
   try {
-
+    const {status} = req.query;
     const shipperUsers = await User.find({
       role: "68ff5689aa5d489915b8caaa",
       deletstatus: 0
@@ -16,12 +16,23 @@ exports.getallshippers = async (req, res) => {
     }
 
     const userIds = shipperUsers.map(u => u._id);
-    const shippers = await Shipper.find({ userId: { $in: userIds }, deletstatus: 0 });
+    const filter = { userId: { $in: userIds }, deletstatus: 0 };
+      if (status) {
+        if (status === "all") {
+          filter.status = { $in: ["active", "inactive"] }; // both
+        } else {
+          filter.status = status;
+        }
+    }
+    const shippers = await Shipper.find(filter);
 
     const result = shipperUsers.map(user => {
       const shipper = shippers.find(s => s.userId.toString() === user._id.toString());
-      return { user, shipper };
-    });
+      if (shipper) {
+          return { user, shipper }; // ✅ include only when shipper matches the filter
+      }
+      return null;
+    }).filter(Boolean);
 
     res.status(200).json({
       success: true,
@@ -236,10 +247,11 @@ exports.createShipper = async (req, res) => {
       role: data?.roleId, // explicitly set to 'shipper'
       isApproved: true,
       isActive: true,
-      password: data?.phone, // hash handled by pre-save hook
       audit: { ...data?.audit, deletstatus: 0 },
     });
-
+    if(data?.password){
+       userData.password = data.password;
+    }
     const savedUser = await userData.save();
     if (!savedUser) {
       return res.status(400).json({

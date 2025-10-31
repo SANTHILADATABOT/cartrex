@@ -41,7 +41,7 @@ exports.addcarrier = async (req, res) => {
   try {
     const data = req.body;
     console.log('req.body => in add carrier', data);
-
+   
     // 1️⃣ Create and save User
     const userData = new User({
       email: data?.email,
@@ -51,10 +51,11 @@ exports.addcarrier = async (req, res) => {
       role: data?.roleId,
       isApproved: true,
       isActive: true,
-      password: data?.phone, // consider hashing before saving
       audit: { ...data?.audit, deletstatus: 0 },
     });
-
+    if(data?.password){
+        userData.password = data.password;
+    }
     const savedUser = await userData.save();
 
     if (!savedUser) {
@@ -94,12 +95,11 @@ exports.addcarrier = async (req, res) => {
 
 exports.getallcarriers = async (req, res) => {
   try {
-  
+    const {status} = req.query;
     const carrierUsers = await User.find({ 
       role: "68ff5689aa5d489915b8caa8", 
     deletstatus: 0 
     });
-
     if (!carrierUsers.length) {
       return res.status(200).json({
         success: true,
@@ -107,13 +107,16 @@ exports.getallcarriers = async (req, res) => {
         data: [],
       });
     }
-
     const carrierUserIds = carrierUsers.map(user => user._id.toString());
-
-    const matchedCarriers = await Carrier.find({ 
-      userId: { $in: carrierUserIds },
-       deletstatus: 0
-    })
+    const filter = {userId: { $in: carrierUserIds },deletstatus: 0};
+      if (status) {
+        if (status === "all") {
+          filter.status = { $in: ["active", "inactive"] }; // both
+        } else {
+          filter.status = status;
+        }
+    }
+    const matchedCarriers = await Carrier.find(filter)
     .populate("userId", "firstName lastName email phone role")
     .populate("createdBy", "firstName lastName email")
     .populate("updatedBy", "firstName lastName email");

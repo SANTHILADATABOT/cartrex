@@ -34,49 +34,72 @@ const Truck = require('../../models/Truck');
 
 exports.getAllSpaces = async (req, res) => {
   try {
-    let spaces = await Space.find({ deletstatus: 0 })
-       .populate({
-        path: 'carrierId',
-        select: 'userId companyName ', 
+    const { isActive } = req.query;
+    const filter = { deletstatus: 0 };
+    if (isActive) {
+      if (isActive === "all") {
+        filter.status = { $in: ["booked", "expired", "active"] };
+      } else {
+        filter.status = isActive;
+      }
+    }
+
+    let spaces = await Space.find(filter)
+      .populate({
+        path: "carrierId",
+        select: "userId companyName",
         populate: {
-          path: 'userId',
-          select: 'firstName lastName ', 
+          path: "userId",
+          select: "firstName lastName",
         },
       })
-    .populate('truckId',' carrierId nickname truckType registrationNumber rating location')
-    .populate('routeId')
-     
-    .lean(); 
-    const carrierIds = [...new Set(spaces.map(s => s.carrierId?._id?.toString()).filter(Boolean))];
+      .populate("truckId", "carrierId nickname truckType registrationNumber rating location")
+      .populate("routeId")
+      .lean();
+
+    const carrierIds = [
+      ...new Set(spaces.map((s) => s.carrierId?._id?.toString()).filter(Boolean)),
+    ];
 
     const truckCounts = await Truck.aggregate([
-      { $match: { carrierId: { $in: carrierIds.map(id => new mongoose.Types.ObjectId(id)) }, deletstatus: 0 } },
+      {
+        $match: {
+          carrierId: { $in: carrierIds.map((id) => new mongoose.Types.ObjectId(id)) },
+          deletstatus: 0,
+        },
+      },
       { $group: { _id: "$carrierId", totalTrucks: { $sum: 1 } } },
     ]);
 
     const truckCountMap = {};
-    truckCounts.forEach(tc => {
+    truckCounts.forEach((tc) => {
       truckCountMap[tc._id.toString()] = tc.totalTrucks;
     });
-    spaces = spaces.map(space => {
+
+    spaces = spaces.map((space) => {
       if (space.carrierId && space.carrierId._id) {
-        space.carrierId.noOfTrucks = truckCountMap[space.carrierId._id.toString()] || 0;
+        space.carrierId.noOfTrucks =
+          truckCountMap[space.carrierId._id.toString()] || 0;
       }
       return space;
     });
+
     res.status(200).json({
-      sucess: "true",
-      message: "All Spaces Fetched Sucessfully",
+      success: true,
+      message: "All Spaces fetched successfully",
+      count: spaces.length,
       data: spaces,
     });
   } catch (error) {
     console.error("Error fetching spaces:", error);
     res.status(500).json({
+      success: false,
       message: "Error fetching spaces",
       error: error.message,
     });
   }
 };
+
 
 
 exports.getspacebyId = async (req, res) => {
@@ -93,7 +116,7 @@ exports.getspacebyId = async (req, res) => {
       })
       .populate('truckId', 'carrierId nickname truckType registrationNumber location rating status')
       .populate('routeId')
-      .populate('createdBy', 'firstName lastName email') 
+      .populate('createdBy', 'firstName lastName email')
       .populate('updatedBy', 'firstName lastName email')
       .lean();
 
@@ -103,7 +126,7 @@ exports.getspacebyId = async (req, res) => {
         message: "Space not found"
       });
     }
-   // Add truck count logic (like getAllSpaces)
+    // Add truck count logic (like getAllSpaces)
     if (space.carrierId && space.carrierId._id) {
       const carrierId = space.carrierId._id;
 
@@ -141,9 +164,9 @@ exports.updateSpaceStatus = async (req, res) => {
       return res.status(400).json({ message: 'Invalid status value' });
     }
 
- 
+
     const auditFields = {
-      ...updateData, 
+      ...updateData,
       updatedAt: new Date(),
       updatedBy: updateData.updatedBy,
       updated_ipAddress: req.ip || req.connection.remoteAddress,
@@ -180,7 +203,7 @@ exports.updatespace = async (req, res) => {
       return res.status(400).json({ message: 'Invalid status value' });
     }
     const auditFields = {
-      ...updateData, 
+      ...updateData,
       updatedAt: new Date(),
       updatedBy: updateData?.updatedBy,
       updated_ipAddress: req.ip || req.connection.remoteAddress,
