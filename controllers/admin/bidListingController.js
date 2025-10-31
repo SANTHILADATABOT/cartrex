@@ -4,7 +4,16 @@ const mongoose = require('mongoose');
 // GET all bids
 exports.getallbids = async (req, res) => {
   try {
-    const bids = await Bid.find({ deletstatus: 0 })
+    const { isActive } = req.query;
+     const filter = { deletstatus: 0 };
+     if (isActive) {
+      if (isActive === "all") {
+        filter.status = { $in: ["pending", "confirmed", "in_progress", "completed", "cancelled"] };
+      } else {
+        filter.status = isActive; // show only the selected status
+      }
+    }
+    const bids = await Bid.find(filter)
       .populate('shipperId', 'companyName dba')
       .populate('carrierId', 'companyName dba')
       .populate('routeId', 'routeName') 
@@ -32,6 +41,53 @@ exports.getallbids = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+// exports.getallbids = async (req, res) => {
+//   try {
+//     const { isActive } = req.query; // same param naming style as others
+
+//     // 🔹 Base filter
+//     const filter = { deletstatus: 0 };
+
+//     // 🔹 Apply status filter (pending, confirmed, in_progress, completed, cancelled)
+//     if (isActive) {
+//       if (isActive === "all") {
+//         filter.status = { $in: ["pending", "confirmed", "in_progress", "completed", "cancelled"] };
+//       } else {
+//         filter.status = isActive; // show only the selected status
+//       }
+//     }
+
+//     // 🔹 Fetch bids with population
+//     const bids = await Bid.find(filter)
+//       .populate('shipperId', 'companyName dba')
+//       .populate('carrierId', 'companyName dba')
+//       .populate('routeId', 'routeName')
+//       .populate('createdBy', 'name email')
+//       .populate('updatedBy', 'name email')
+//       .sort({ createdAt: -1 });
+
+//     // 🔹 If no bids found
+//     if (!bids.length) {
+//       return res.status(200).json({
+//         success: true,
+//         message: "No bids found",
+//         data: []
+//       });
+//     }
+
+//     // 🔹 Send response
+//     return res.status(200).json({
+//       success: true,
+//       count: bids.length,
+//       message: "Bids fetched successfully",
+//       data: bids
+//     });
+
+//   } catch (error) {
+//     console.error("Error fetching bids:", error);
+//     res.status(500).json({ success: false, message: "Server error" });
+//   }
+// };
 
 // ✅ GET bid by ID
 exports.getbidbyId = async (req, res) => {
