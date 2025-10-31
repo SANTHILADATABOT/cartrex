@@ -28,8 +28,11 @@ exports.getallshippers = async (req, res) => {
 
     const result = shipperUsers.map(user => {
       const shipper = shippers.find(s => s.userId.toString() === user._id.toString());
-      return { user, shipper };
-    });
+      if (shipper) {
+          return { user, shipper }; // ✅ include only when shipper matches the filter
+      }
+      return null;
+    }).filter(Boolean);
 
     res.status(200).json({
       success: true,
@@ -244,10 +247,11 @@ exports.createShipper = async (req, res) => {
       role: data?.roleId, // explicitly set to 'shipper'
       isApproved: true,
       isActive: true,
-      password: data?.phone, // hash handled by pre-save hook
       audit: { ...data?.audit, deletstatus: 0 },
     });
-
+    if(data?.password){
+       userData.password = data.password;
+    }
     const savedUser = await userData.save();
     if (!savedUser) {
       return res.status(400).json({

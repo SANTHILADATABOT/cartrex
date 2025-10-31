@@ -41,7 +41,7 @@ exports.addcarrier = async (req, res) => {
   try {
     const data = req.body;
     console.log('req.body => in add carrier', data);
-
+   
     // 1️⃣ Create and save User
     const userData = new User({
       email: data?.email,
@@ -51,10 +51,11 @@ exports.addcarrier = async (req, res) => {
       role: data?.roleId,
       isApproved: true,
       isActive: true,
-      password: data?.phone, // consider hashing before saving
       audit: { ...data?.audit, deletstatus: 0 },
     });
-
+    if(data?.password){
+        userData.password = data.password;
+    }
     const savedUser = await userData.save();
 
     if (!savedUser) {

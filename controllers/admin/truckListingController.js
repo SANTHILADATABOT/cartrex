@@ -5,7 +5,19 @@ const mongoose = require('mongoose');
 // ✅ GET all trucks (only active ones)
 exports.getalltrucks = async (req, res) => {
   try {
-    const trucks = await Truck.find({ deletstatus: 0 })
+    const {status,owner} = req.query;
+     const filter = { deletstatus: 0 };
+      if (status) {
+        if (status === "all") {
+          filter.status = { $in: ["active", "inactive"] }; // both
+        } else {
+          filter.status = status;
+        }
+    }
+     if (owner !== "all") {
+      filter.carrierId = owner;
+    }
+    const trucks = await Truck.find(filter)
       .populate({
         path: "carrierId",
         select: "companyName address city state zipCode country status userId",
