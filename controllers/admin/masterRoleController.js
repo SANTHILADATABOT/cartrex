@@ -3,10 +3,17 @@ const AdminRole = require('../../models/AdminRoles');
 // GET all roles
 exports.getRoles = async (req, res) => {
   try {
-    const roles = await AdminRole.find({ 
-      // isActive: "active" ,
-      'audit.deletstatus': 0   // ✅ include deletstatus condition
-    });
+    const {isActive } = req.query;
+    const filter = { 'audit.deletstatus': 0 };
+        // ✅ Status filter
+    if (isActive) {
+      if (isActive === "all") {
+        filter.isActive = { $in: ["active", "inactive"] }; // both
+      } else {
+        filter.isActive = isActive;
+      }
+    }
+    const roles = await AdminRole.find(filter);
     res.status(200).json({ success: true, data: roles });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

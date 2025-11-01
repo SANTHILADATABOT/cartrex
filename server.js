@@ -5,9 +5,10 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
-
+const path = require("path");
 
 dotenv.config();
+
 const rateLimit = require('express-rate-limit');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -36,7 +37,7 @@ const usernotifications=require('./models/UsernotificationSettings');
 
 const app = express();
 const server = http.createServer(app);
-
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Initialize Socket.io
 const io = new Server(server, {
   cors: {
@@ -193,6 +194,7 @@ const routeListRoutes = require('./routes/admin/routeListingRoutes')
 const bidListRoutes = require('./routes/admin/bidListingRoutes');
 const adminUserlistRoutes = require('./routes/admin/adminUserlistRoutes');
 const masterRoleRoutes = require('./routes/admin/masterRoleRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 const webRoutes = require('./routes/web');
 // const mobileRoutes = require('./routes/mobile');
@@ -214,6 +216,8 @@ app.use('/routelisting', routeListRoutes);
 app.use('/bidlisting',bidListRoutes);
 app.use('/adminuserlist',adminUserlistRoutes);
 app.use('/masterRoleRoutes',masterRoleRoutes);
+
+app.use("/uploads", uploadRoutes);
 // Web application routes
 app.use('/api/web', webRoutes);
 

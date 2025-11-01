@@ -1,6 +1,6 @@
 // models/AdminUser.js
 const mongoose = require('mongoose');
-
+const bcrypt = require('bcryptjs');
 // Audit Schema
 const auditSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
@@ -42,6 +42,7 @@ const adminUserSchema = new mongoose.Schema({
     // required: true,
     enum: ['super_admin', 'admin', 'manager', 'data_entry', 'accounts', 'moderator', 'support', 'operations']
   },
+   password: { type: String, required: true ,select: false },
   // employment: {
   //   employeeId: { type: String, required: true, unique: true, trim: true },
   //   hireDate: { type: Date, required: true },
@@ -49,6 +50,7 @@ const adminUserSchema = new mongoose.Schema({
   //   reportingManager: { type: mongoose.Schema.Types.ObjectId, ref: 'AdminUser', default: null },
   //   employmentStatus: { type: String, enum: ['active', 'probation', 'suspended', 'terminated', 'resigned'], default: 'active' }
   // },
+  lastLogin: { type: Date },
   isActive:  { type: String, enum: ['active', 'inactive'], default: 'active' },
   isSuperAdmin: { type: Boolean, default: false },
   lastActive: { type: Date, default: null },
@@ -111,4 +113,7 @@ adminUserSchema.pre('save', async function(next) {
   next();
 });
 
+adminUserSchema.methods.comparePassword = async function(candidatePassword) {
+  return await bcrypt.compare(candidatePassword, this.password);
+};
 module.exports = mongoose.model('AdminUser', adminUserSchema);

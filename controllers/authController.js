@@ -2,6 +2,7 @@
 const User = require('../models/User');
 const Carrier = require('../models/Carrier');
 const Shipper = require('../models/Shipper');
+const AdminUser = require('../models/AdminUsers');
 const { generateToken, generateOTP } = require('../utils/jwt');
 const { sendEmail } = require('../utils/emailService');
 // const SMSService = require('../utils/smsService');
@@ -62,63 +63,141 @@ const encryptedpassword = encrypt(password);
 };
 
 // Login Controller
+// exports.login = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+//        console.log("req.body",req.body)
+//     if (!email || !password)
+//       return res.status(400).json({ success: false, message: 'Please provide email and password' });
+
+//     const user = await User.findOne({ email }).select('+password');
+//     if (!user) return res.status(401).json({ success: false, message: 'Invalid credentialsssss' });
+
+//     // Compare password with hashed password stored in DB
+//     const isMatch = await user.comparePassword(password);
+//     if (!isMatch) return res.status(401).json({ success: false, message: 'Invalid credentials' });
+
+//     if (!user.isActive)
+//       return res.status(403).json({ success: false, message: 'Account is deactivated' });
+//     // this mfa enable functionality no need now so we cmd this 
+//     /*if (user.mfaEnabled) {
+//         const otp = generateOTP();
+
+//         // Decrypt phone number if stored encrypted
+//         const phone = decrypt(user.phone);  
+
+//         await sendEmail(user.email, 'Your OTP Code', `Your OTP is: ${otp}. Valid for 10 minutes.`);
+//         await SMSService.sendSMS(phone, `Your OTP is: ${otp}`);
+
+//         return res.status(200).json({
+//           success: true,
+//           requiresMFA: true,
+//           userId: user._id,
+//           message: 'OTP sent to your email and phone'
+//         });
+//       } */
+
+//     user.lastLogin = new Date();
+//     await user.save();
+
+//     const token = generateToken(user._id);
+//     res.status(200).json({
+//       success: true,
+//       token,
+//       data: {
+//         id: user._id,
+//         email: user.email,
+//         firstName: user.firstName,
+//         lastName: user.lastName,
+//         role: user.role,
+//         isApproved: user.isApproved,
+//         profileCompleted: user.profileCompleted
+//       }
+//     });
+//   } catch (error) {
+//     console.error('Login error:', error);
+//     res.status(500).json({ success: false, message: 'Server error during login' });
+//   }
+// };
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
-       console.log("req.body",req.body)
-    if (!email || !password)
-      return res.status(400).json({ success: false, message: 'Please provide email and password' });
+    const { email, password, role } = req.body;
+    console.log("req.body", req.body);
 
-    const user = await User.findOne({ email }).select('+password');
-    if (!user) return res.status(401).json({ success: false, message: 'Invalid credentialsssss' });
+    if (!email || !password || !role) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide email, password, and role'
+      });
+    }
 
-    // Compare password with hashed password stored in DB
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    // ✅ Decide which collection to use based on role
+    let account;
+    if (role === 'admin') {
+      // account = await AdminUser.findOne({ email }).select('+password');
+      account = await AdminUser.findOne({ 'personalInfo.email': email }).select('+password');
+    } else if (role === 'user') {
+      account = await User.findOne({ email }).select('+password');
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid role type'
+      });
+    }
 
-    if (!user.isActive)
-      return res.status(403).json({ success: false, message: 'Account is deactivated' });
-    // this mfa enable functionality no need now so we cmd this 
-    /*if (user.mfaEnabled) {
-        const otp = generateOTP();
+    // Check if account exists
+    if (!account) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials'
+      });
+    }
 
-        // Decrypt phone number if stored encrypted
-        const phone = decrypt(user.phone);  
+    // Compare password
+    const isMatch = await account.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials'
+      });
+    }
 
-        await sendEmail(user.email, 'Your OTP Code', `Your OTP is: ${otp}. Valid for 10 minutes.`);
-        await SMSService.sendSMS(phone, `Your OTP is: ${otp}`);
+    // Check if active
+    if (!account.isActive) {
+      return res.status(403).json({
+        success: false,
+        message: 'Account is deactivated'
+      });
+    }
 
-        return res.status(200).json({
-          success: true,
-          requiresMFA: true,
-          userId: user._id,
-          message: 'OTP sent to your email and phone'
-        });
-      } */
+    // Update last login
+    account.lastLogin = new Date();
+    await account.save();
 
-    user.lastLogin = new Date();
-    await user.save();
+    // Generate JWT
+    const token = generateToken(account._id);
 
-    const token = generateToken(user._id);
     res.status(200).json({
       success: true,
       token,
       data: {
-        id: user._id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role,
-        isApproved: user.isApproved,
-        profileCompleted: user.profileCompleted
+        id: account._id,
+        email: account.email,
+        firstName: account.firstName,
+        lastName: account.lastName,
+        role: role,
+        isApproved: account.isApproved,
+        profileCompleted: account.profileCompleted
       }
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ success: false, message: 'Server error during login' });
+    res.status(500).json({
+      success: false,
+      message: 'Server error during login'
+    });
   }
 };
-
 
 // Verify OTP Controller
 exports.verifyOTP = async (req, res) => {
