@@ -8,6 +8,7 @@ const dotenv = require('dotenv');
 const path = require("path");
 
 dotenv.config();
+
 const rateLimit = require('express-rate-limit');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -36,7 +37,7 @@ const usernotifications=require('./models/UsernotificationSettings');
 
 const app = express();
 const server = http.createServer(app);
-
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Initialize Socket.io
 const io = new Server(server, {
   cors: {
@@ -179,7 +180,7 @@ setupWebSocketNamespaces();
 
 // Make io accessible to routes
 app.set('io', io);
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/admin/adminRoutes');
